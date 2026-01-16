@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cryoprotectant Calculator | Tomorrow.bio</title>
+  <meta name="theme-color" content="#0038FF" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --blue: #0038FF;
+      --blue-light: #E8EDFF;
+      --blue-dark: #0028CC;
+      --gray-50: #F8FAFC;
+      --gray-100: #F1F5F9;
+      --gray-200: #E2E8F0;
+      --gray-300: #CBD5E1;
+      --gray-400: #94A3B8;
+      --gray-500: #64748B;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1E293B;
+      --gray-900: #0F172A;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06);
+      --shadow-lg: 0 4px 6px rgba(0,0,0,0.04), 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(145deg, var(--gray-50) 0%, #ffffff 50%, var(--blue-light) 100%);
+      min-height: 100vh;
+      color: var(--gray-800);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .logo {
+      height: 36px;
+      width: auto;
+    }
+
+    .badge {
+      background: var(--blue);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin: 24px 0 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--gray-500);
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--gray-100);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--blue-light);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-icon svg {
+      width: 20px;
+      height: 20px;
+      color: var(--blue);
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--gray-800);
+    }
+
+    /* Form */
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--gray-600);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 18px;
+      font-family: inherit;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--gray-200);
+      background: var(--gray-50);
+      color: var(--gray-800);
+      transition: all 0.2s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--blue);
+      background: white;
+      box-shadow: 0 0 0 4px var(--blue-light);
+    }
+
+    input::placeholder {
+      color: var(--gray-400);
+      font-weight: 400;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--gray-100);
+    }
+
+    button {
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: var(--gray-100);
+      color: var(--gray-700);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      background: var(--gray-200);
+    }
+
+    button svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .status {
+      color: var(--gray-500);
+      font-size: 13px;
+      margin-left: auto;
+    }
+
+    .error {
+      color: #DC2626;
+      font-weight: 600;
+      margin-top: 16px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Results */
+    .summary {
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .summary-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--blue);
+      border-radius: 50%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--gray-500);
+      background: var(--gray-50);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    }
+
+    thead th:last-child {
+      text-align: right;
+    }
+
+    tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 15px;
+    }
+
+    tbody td:last-child {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+
+    tbody tr:hover {
+      background: var(--gray-50);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tfoot td {
+      padding: 16px;
+      font-weight: 700;
+      font-size: 16px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+      color: white;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    }
+
+    tfoot td:last-child {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray-400);
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    /* Print styles */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; }
+      .container { padding: 0; max-width: none; }
+      .card { box-shadow: none; border: 1px solid #ddd; }
+    }
+
+    /* Mobile */
+    @media (max-width: 540px) {
+      .row { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+      .container { padding: 20px 16px 48px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="./logo.png" alt="Tomorrow.bio" class="logo" />
+      <span class="badge">Internal Tool</span>
+    </div>
+
+    <h1>Cryoprotectant Calculator</h1>
+    <p class="subtitle">Calculate ingredient quantities for cryoprotectant solutions. Enter strength and volume to generate a preparation sheet.</p>
+
+    <div class="card no-print">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <span class="card-title">Input Parameters</span>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="strength">Strength (% w/v)</label>
+          <input id="strength" type="number" inputmode="decimal" min="0" max="100" step="0.1" placeholder="e.g. 30" />
+        </div>
+        <div>
+          <label for="amount">Volume (Liters)</label>
+          <input id="amount" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 21" />
+        </div>
+      </div>
+
+      <div id="err" class="error"></div>
+
+      <div class="toolbar">
+        <button id="printBtn" type="button">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+          </svg>
+          Print
+        </button>
+        <button id="copyLinkBtn" type="button">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+          </svg>
+          Share Link
+        </button>
+        <span id="status" class="status"></span>
+      </div>
+    </div>
+
+    <div class="card" id="resultsCard">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+          </svg>
+        </div>
+        <span class="card-title">Ingredient Quantities</span>
+      </div>
+
+      <div id="summary" class="summary" style="display:none;"></div>
+
+      <div id="emptyState" class="empty-state">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+        </svg>
+        <div>Enter parameters above to calculate</div>
+      </div>
+
+      <table id="resultsTable" style="display:none;" aria-label="Ingredient list">
+        <thead>
+          <tr>
+            <th>Ingredient</th>
+            <th>Mass (g)</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+        <tfoot>
+          <tr>
+            <td>Total Weight</td>
+            <td id="total"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
+
+  const $ = (id) => document.getElementById(id);
+  const strengthEl = $("strength");
+  const amountEl = $("amount");
+  const tbody = $("tbody");
+  const totalEl = $("total");
+  const errEl = $("err");
+  const summaryEl = $("summary");
+  const statusEl = $("status");
+  const emptyState = $("emptyState");
+  const resultsTable = $("resultsTable");
+
+  function round2(x) {
+    return Math.round((x + Number.EPSILON) * 100) / 100;
+  }
+
+  function fmt(x) {
+    return round2(x).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function parseInputs() {
+    const strength = Number(strengthEl.value);
+    const amount = Number(amountEl.value);
+    if (!Number.isFinite(strength) || !Number.isFinite(amount) || strengthEl.value === '' || amountEl.value === '') {
+      return { ok: false, err: "" };
+    }
+    if (strength < 0 || strength > 100) return { ok: false, err: "Strength must be between 0 and 100." };
+    if (amount <= 0) return { ok: false, err: "Volume must be greater than 0." };
+    return { ok: true, strength, amount };
+  }
+
+  function compute(strength, amount) {
+    const s = Number(strength);
+    const a = Number(amount);
+
+    const DMSO = a * s * 10 * 0.5019;
+    const EG   = 0.4981 * s * 10 * a;
+
+    const base = (96.59 + (s / 5)) * 1.15;
+
+    const Glucose = a * base * 0.3245;
+    const Tris    = a * base * 0.0096;
+    const KCL     = a * base * 0.0166;
+
+    const HCL = (4.94299325 * a) + (0.010235 * a * s);
+
+    const H2O = (
+      (-0.304365 * s / 5) +
+      (-(452505733 / 50000000) * s) +
+      (4853006923 / 5000000)
+    ) * a;
+
+    const items = [
+      ["DMSO", DMSO],
+      ["Ethylene Glycol", EG],
+      ["H₂O (Water)", H2O],
+      ["Glucose", Glucose],
+      ["Tris Base", Tris],
+      ["KCl", KCL],
+      ["HCl", HCL],
+    ];
+
+    const total = items.reduce((sum, [, v]) => sum + v, 0);
+    return { items, total };
+  }
+
+  function updateUrl(strength, amount) {
+    const url = new URL(window.location.href);
+    if (strength == null || amount == null) {
+      url.searchParams.delete("s");
+      url.searchParams.delete("a");
+    } else {
+      url.searchParams.set("s", String(strength));
+      url.searchParams.set("a", String(amount));
+    }
+    history.replaceState(null, "", url.toString());
+  }
+
+  function loadFromUrl() {
+    const url = new URL(window.location.href);
+    const s = url.searchParams.get("s");
+    const a = url.searchParams.get("a");
+    if (s !== null) strengthEl.value = s;
+    if (a !== null) amountEl.value = a;
+  }
+
+  function render() {
+    errEl.textContent = "";
+    tbody.innerHTML = "";
+    totalEl.textContent = "";
+    summaryEl.style.display = "none";
+    summaryEl.innerHTML = "";
+
+    const p = parseInputs();
+    if (!p.ok) {
+      errEl.textContent = p.err;
+      emptyState.style.display = "block";
+      resultsTable.style.display = "none";
+      updateUrl(null, null);
+      return;
+    }
+
+    emptyState.style.display = "none";
+    resultsTable.style.display = "table";
+
+    const { items, total } = compute(p.strength, p.amount);
+
+    summaryEl.style.display = "flex";
+    summaryEl.innerHTML = `<span class="summary-dot"></span> ${p.strength}% w/v concentration &nbsp;•&nbsp; ${p.amount} L volume`;
+
+    for (const [name, grams] of items) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${name}</td><td>${fmt(grams)} g</td>`;
+      tbody.appendChild(tr);
+    }
+
+    totalEl.textContent = fmt(total) + " g";
+    updateUrl(p.strength, p.amount);
+  }
+
+  strengthEl.addEventListener("input", render);
+  amountEl.addEventListener("input", render);
+
+  $("printBtn").addEventListener("click", () => window.print());
+
+  $("copyLinkBtn").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      statusEl.textContent = "✓ Link copied!";
+      setTimeout(() => statusEl.textContent = "", 2000);
+    } catch {
+      statusEl.textContent = "Copy blocked by browser";
+      setTimeout(() => statusEl.textContent = "", 2500);
+    }
+  });
+
+  loadFromUrl();
+  render();
+</script>
+</body>
+</html>

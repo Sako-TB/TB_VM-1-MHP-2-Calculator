@@ -1,0 +1,9 @@
+{
+  "name": "Cryoprotectant Calculator",
+  "short_name": "CPA Calc",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0038FF",
+  "icons": []
+}
