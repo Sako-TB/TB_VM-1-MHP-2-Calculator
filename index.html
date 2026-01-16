@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cryoprotectant Calculator</title>
+  <meta name="theme-color" content="#111111" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 24px; max-width: 860px; }
+    h1 { margin: 0 0 6px; }
+    .muted { color:#666; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin: 14px 0; }
+    label { display:block; font-weight: 650; margin: 10px 0 6px; }
+    input { width: 100%; padding: 10px 12px; font-size: 16px; border-radius: 10px; border: 1px solid #ccc; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .toolbar { display:flex; gap:10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+    button { padding: 10px 14px; border-radius: 10px; border: 1px solid #ccc; background: #f6f6f6; cursor: pointer; }
+    button:hover { background: #efefef; }
+    .error { color:#b00020; font-weight: 650; margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #eee; }
+    th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #555; }
+
+    @media print {
+      .no-print { display:none !important; }
+      body { margin: 0; max-width: none; }
+      .card { border: none; border-radius: 0; padding: 0; }
+      table { font-size: 12pt; }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Cryoprotectant Calculator</h1>
+  <div class="muted">Inputs: Strength (% w/v) and Amount (L). Outputs: grams. Includes total weight. Printable & shareable link.</div>
+
+  <div class="card no-print">
+    <div class="row">
+      <div>
+        <label for="strength">Strength (% w/v)</label>
+        <input id="strength" type="number" inputmode="decimal" min="0" max="100" step="0.1" placeholder="e.g. 30" />
+      </div>
+      <div>
+        <label for="amount">Amount (L)</label>
+        <input id="amount" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 21" />
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button id="printBtn" type="button">Print</button>
+      <button id="copyLinkBtn" type="button">Copy share link</button>
+      <span id="status" class="muted"></span>
+    </div>
+
+    <div id="err" class="error"></div>
+  </div>
+
+  <div class="card">
+    <div id="summary" class="muted"></div>
+
+    <table aria-label="Ingredient list">
+      <thead>
+        <tr>
+          <th>Ingredient</th>
+          <th>Grams</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+      <tfoot>
+        <tr>
+          <td style="font-weight:700;">Total weight</td>
+          <td id="total" style="font-weight:700;"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    });
+  }
+
+  const $ = (id) => document.getElementById(id);
+  const strengthEl = $("strength");
+  const amountEl = $("amount");
+  const tbody = $("tbody");
+  const totalEl = $("total");
+  const errEl = $("err");
+  const summaryEl = $("summary");
+  const statusEl = $("status");
+
+  function round2(x) {
+    return Math.round((x + Number.EPSILON) * 100) / 100;
+  }
+
+  function fmt(x) {
+    return round2(x).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function parseInputs() {
+    const strength = Number(strengthEl.value);
+    const amount = Number(amountEl.value);
+    if (!Number.isFinite(strength) || !Number.isFinite(amount)) {
+      return { ok: false, err: "Enter strength and amount." };
+    }
+    if (strength < 0 || strength > 100) return { ok: false, err: "Strength must be between 0 and 100." };
+    if (amount <= 0) return { ok: false, err: "Amount must be greater than 0." };
+    return { ok: true, strength, amount };
+  }
+
+  function compute(strength, amount) {
+    const s = Number(strength);
+    const a = Number(amount);
+
+    const DMSO = a * s * 10 * 0.5019;
+    const EG   = 0.4981 * s * 10 * a;
+
+    const base = (96.59 + (s / 5)) * 1.15;
+
+    const Glucose = a * base * 0.3245;
+    const Tris    = a * base * 0.0096;
+    const KCL     = a * base * 0.0166;
+
+    const HCL = (4.94299325 * a) + (0.010235 * a * s);
+
+    const H2O = (
+      (-0.304365 * s / 5) +
+      (-(452505733 / 50000000) * s) +
+      (4853006923 / 5000000)
+    ) * a;
+
+    const items = [
+      ["DMSO", DMSO],
+      ["EG", EG],
+      ["H2O", H2O],
+      ["Glucose", Glucose],
+      ["Tris", Tris],
+      ["KCl", KCL],
+      ["HCl", HCL],
+    ];
+
+    const total = items.reduce((sum, [, v]) => sum + v, 0);
+    return { items, total };
+  }
+
+  function updateUrl(strength, amount) {
+    const url = new URL(window.location.href);
+    if (strength == null || amount == null) {
+      url.searchParams.delete("s");
+      url.searchParams.delete("a");
+    } else {
+      url.searchParams.set("s", String(strength));
+      url.searchParams.set("a", String(amount));
+    }
+    history.replaceState(null, "", url.toString());
+  }
+
+  function loadFromUrl() {
+    const url = new URL(window.location.href);
+    const s = url.searchParams.get("s");
+    const a = url.searchParams.get("a");
+    if (s !== null) strengthEl.value = s;
+    if (a !== null) amountEl.value = a;
+  }
+
+  function render() {
+    errEl.textContent = "";
+    tbody.innerHTML = "";
+    totalEl.textContent = "";
+    summaryEl.textContent = "";
+
+    const p = parseInputs();
+    if (!p.ok) {
+      errEl.textContent = p.err;
+      updateUrl(null, null);
+      return;
+    }
+
+    const { items, total } = compute(p.strength, p.amount);
+
+    summaryEl.textContent = `Strength: ${p.strength}% w/v • Amount: ${p.amount} L`;
+
+    for (const [name, grams] of items) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${name}</td><td>${fmt(grams)}</td>`;
+      tbody.appendChild(tr);
+    }
+
+    totalEl.textContent = fmt(total);
+    updateUrl(p.strength, p.amount);
+  }
+
+  strengthEl.addEventListener("input", render);
+  amountEl.addEventListener("input", render);
+
+  $("printBtn").addEventListener("click", () => window.print());
+
+  $("copyLinkBtn").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      statusEl.textContent = "Link copied.";
+      setTimeout(() => statusEl.textContent = "", 1500);
+    } catch {
+      statusEl.textContent = "Copy blocked by browser.";
+      setTimeout(() => statusEl.textContent = "", 2000);
+    }
+  });
+
+  loadFromUrl();
+  render();
+</script>
+</body>
+</html>
