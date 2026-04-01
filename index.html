@@ -461,19 +461,28 @@
     const DMSO = a * s * 10 * 0.5019;
     const EG   = 0.4981 * s * 10 * a;
 
-    const base = (96.59 + (s / 5)) * 1.15;
+    // Ion concentrations are fixed at the 70% reference values
+    // so they remain constant across all VM-1 % strengths
+    const REF = 70;
+    const baseFixed = (96.59 + (REF / 5)) * 1.15;
 
-    const Glucose = a * base * 0.3245;
-    const Tris    = a * base * 0.0096;
-    const KCL     = a * base * 0.0166;
+    const Glucose = a * baseFixed * 0.3245;
+    const Tris    = a * baseFixed * 0.0096;
+    const KCL     = a * baseFixed * 0.0166;
+    const MgCl2   = 2.03 * a;
 
-    const HCL = (4.94299325 * a) + (0.010235 * a * s);
+    // Water: start from the original formula, then compensate for
+    // the mass that used to go to variable ions but is now fixed
+    const baseVar      = (96.59 + (s / 5)) * 1.15;
+    const varIonTotal  = a * baseVar * (0.3245 + 0.0096 + 0.0166)
+                       + (4.94299325 * a) + (0.010235 * a * s);
+    const fixIonTotal  = Glucose + Tris + KCL + MgCl2;
 
     const H2O = (
       (-0.304365 * s / 5) +
       (-(452505733 / 50000000) * s) +
       (4853006923 / 5000000)
-    ) * a;
+    ) * a + (varIonTotal - fixIonTotal);
 
     const items = [
       ["DMSO", DMSO],
@@ -482,7 +491,7 @@
       ["Glucose", Glucose],
       ["Tris Base", Tris],
       ["KCl", KCL],
-      ["HCl", HCL],
+      ["MgCl₂", MgCl2],
     ];
 
     const total = items.reduce((sum, [, v]) => sum + v, 0);
