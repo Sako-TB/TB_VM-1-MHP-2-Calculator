@@ -867,8 +867,10 @@
     }
     // HCl — listed without amount
     html += `<div class="ing-row"><span>HCl</span><span style="color:#888;">pH adj.</span></div>`;
-    // Water q.s.
-    html += `<div class="ing-row"><span>Water</span><span style="color:#888;">q.s.</span></div>`;
+    // Water — compute per 100 ml from the calculator (1L / 10)
+    const waterPerL = compute(s, 1).items.find(i => i[0].startsWith("H\u2082O"))[1];
+    const water100 = waterPerL / 10;
+    html += `<div class="ing-row"><span>Water</span><span>${water100.toFixed(3)} g</span></div>`;
 
     $("lblIngredients").innerHTML = html;
   }
