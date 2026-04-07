@@ -8,7 +8,7 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,900&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <style>
@@ -44,7 +44,7 @@
     }
 
     .container {
-      max-width: 720px;
+      max-width: 760px;
       margin: 0 auto;
       padding: 32px 24px 64px;
     }
@@ -80,10 +80,10 @@
     .subtitle {
       color: var(--gray-500);
       font-size: 15px;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
-    /* ── Tabs ── */
+    /* ── Tabs (with horizontal scroll for many) ── */
     .tabs {
       display: flex;
       gap: 4px;
@@ -91,24 +91,27 @@
       background: var(--gray-100);
       border-radius: var(--radius-sm);
       padding: 4px;
+      overflow-x: auto;
+      scrollbar-width: thin;
     }
 
     .tab-btn {
-      flex: 1;
-      padding: 12px 20px;
+      flex: 0 0 auto;
+      padding: 10px 16px;
       border-radius: 8px;
       border: none;
       background: transparent;
       color: var(--gray-500);
       font-family: inherit;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
+      white-space: nowrap;
     }
 
     .tab-btn:hover { color: var(--gray-700); }
@@ -166,6 +169,12 @@
       gap: 16px;
     }
 
+    .row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
     .row-4 {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -182,7 +191,7 @@
       letter-spacing: 0.04em;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 14px 16px;
       font-size: 18px;
@@ -195,7 +204,7 @@
       transition: all 0.2s ease;
     }
 
-    input:focus {
+    input:focus, select:focus {
       outline: none;
       border-color: var(--blue);
       background: white;
@@ -203,6 +212,28 @@
     }
 
     input::placeholder { color: var(--gray-400); font-weight: 400; }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+    }
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+    .checkbox-row label {
+      margin: 0;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 14px;
+      color: var(--gray-700);
+      cursor: pointer;
+    }
 
     .toolbar {
       display: flex;
@@ -246,6 +277,16 @@
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .info-note {
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 16px;
     }
 
     /* ── Results table ── */
@@ -310,6 +351,67 @@
     .empty-state { text-align: center; padding: 40px 20px; color: var(--gray-400); }
     .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.5; }
 
+    .section-header {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-600);
+      margin: 20px 0 8px;
+    }
+
+    /* ── Stock tab grid ── */
+    .stock-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 16px;
+    }
+
+    .stock-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: var(--gray-50);
+      border-radius: 8px;
+      border: 1px solid var(--gray-100);
+    }
+
+    .stock-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      padding: 0;
+      margin: 0;
+    }
+
+    .stock-row .stock-label {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
+    .stock-row input[type="number"] {
+      width: 60px;
+      padding: 6px 8px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .stock-row input[type="number"]:disabled {
+      background: var(--gray-100);
+      color: var(--gray-400);
+      cursor: not-allowed;
+    }
+
+    .color-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
     /* ───── LABEL ───── */
     .label-preview-wrapper {
       display: flex;
@@ -331,6 +433,7 @@
       background: #fff;
       overflow: hidden;
       line-height: 1.35;
+      position: relative;
     }
 
     .label-top {
@@ -338,6 +441,8 @@
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 1px;
+      position: relative;
+      z-index: 2;
     }
 
     .label-logo { height: 18px; width: auto; }
@@ -359,6 +464,8 @@
       margin: 2px 0 3px;
       border-bottom: 1px solid #ccc;
       padding-bottom: 3px;
+      position: relative;
+      z-index: 2;
     }
 
     .label-strength {
@@ -368,6 +475,8 @@
       color: #111;
       margin: 3px 0 1px;
       line-height: 1.1;
+      position: relative;
+      z-index: 2;
     }
 
     .label-strength span {
@@ -385,6 +494,8 @@
       border-top: 1px solid #ddd;
       border-bottom: 1px solid #ddd;
       padding: 3px 0;
+      position: relative;
+      z-index: 2;
     }
 
     .label-meta div { display: flex; justify-content: space-between; gap: 4px; }
@@ -398,12 +509,16 @@
       letter-spacing: 0.05em;
       color: #333;
       margin-bottom: 1px;
+      position: relative;
+      z-index: 2;
     }
 
     .label-ingredients {
       font-size: 6.5pt;
       line-height: 1.35;
       color: #333;
+      position: relative;
+      z-index: 2;
     }
 
     .label-ingredients .ing-row {
@@ -420,6 +535,8 @@
       margin-top: auto;
       padding-top: 3px;
       border-top: 1px solid #ddd;
+      position: relative;
+      z-index: 2;
     }
 
     .label-footer .address {
@@ -443,6 +560,82 @@
       margin-top: 1px;
     }
 
+    /* ── Numbered label specifics ── */
+    .label-bag-num {
+      text-align: center;
+      font-size: 48pt;
+      font-weight: 900;
+      color: #111;
+      margin: 8px 0 6px;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      position: relative;
+      z-index: 2;
+    }
+
+    .label-bag-num .bag-prefix {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #555;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-bottom: -2px;
+    }
+
+    /* Color coding overlays */
+    .label.color-border {
+      border-width: 6px;
+    }
+
+    .label-color-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      z-index: 1;
+      display: none;
+    }
+
+    .label.color-bar .label-color-bar { display: block; }
+    .label.color-bar { padding-top: calc(0.16in + 12px); }
+
+    .label-color-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      display: none;
+      opacity: 0.18;
+    }
+
+    .label.color-bg .label-color-bg { display: block; }
+
+    /* Recirculate stamp */
+    .label-stamp {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-22deg);
+      font-size: 30pt;
+      font-weight: 900;
+      color: rgba(192, 0, 0, 0.55);
+      border: 5px solid rgba(192, 0, 0, 0.55);
+      padding: 4px 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      pointer-events: none;
+      z-index: 5;
+      white-space: nowrap;
+      display: none;
+      font-family: 'DM Sans', sans-serif;
+      border-radius: 4px;
+    }
+
+    .label.recirculate .label-stamp { display: block; }
+
     /* Print */
     @media print {
       .no-print { display: none !important; }
@@ -451,9 +644,11 @@
       .card { box-shadow: none; border: 1px solid #ddd; }
     }
 
-    @media (max-width: 540px) {
+    @media (max-width: 640px) {
       .row { grid-template-columns: 1fr; }
+      .row-3 { grid-template-columns: 1fr; }
       .row-4 { grid-template-columns: 1fr 1fr; }
+      .stock-grid { grid-template-columns: 1fr; }
       h1 { font-size: 24px; }
       .container { padding: 20px 16px 48px; }
     }
@@ -468,18 +663,17 @@
     </div>
 
     <h1>Cryoprotectant Calculator</h1>
-    <p class="subtitle">Calculate ingredient quantities for cryoprotectant solutions, or generate printable labels.</p>
+    <p class="subtitle">Calculator, dilutions, recipes, stock planning, and printable labels.</p>
 
     <!-- TAB NAV -->
     <div class="tabs no-print">
-      <button class="tab-btn active" data-tab="calc">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-        Calculator
-      </button>
-      <button class="tab-btn" data-tab="label">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
-        Label Creator
-      </button>
+      <button class="tab-btn active" data-tab="calc">Calculator</button>
+      <button class="tab-btn" data-tab="dilution">VM-1 Dilution</button>
+      <button class="tab-btn" data-tab="rps2">1× m-RPS-2</button>
+      <button class="tab-btn" data-tab="mhp2">MHP-2</button>
+      <button class="tab-btn" data-tab="stock">Stock</button>
+      <button class="tab-btn" data-tab="label">Labels</button>
+      <button class="tab-btn" data-tab="bagLabel">Bag Labels</button>
     </div>
 
     <!-- ════════ TAB 1: CALCULATOR ════════ -->
@@ -487,11 +681,9 @@
       <div class="card no-print">
         <div class="card-header">
           <div class="card-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-            </svg>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
           </div>
-          <span class="card-title">Input Parameters</span>
+          <span class="card-title">VM-1 from Scratch</span>
         </div>
 
         <div class="row">
@@ -506,30 +698,12 @@
         </div>
 
         <div id="err" class="error"></div>
-
-        <div class="toolbar">
-          <button id="printBtn" type="button">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-            </svg>
-            Print
-          </button>
-          <button id="copyLinkBtn" type="button">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-            </svg>
-            Share Link
-          </button>
-          <span id="status" class="status"></span>
-        </div>
       </div>
 
       <div class="card" id="resultsCard">
         <div class="card-header">
           <div class="card-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
-            </svg>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
           </div>
           <span class="card-title">Ingredient Quantities</span>
         </div>
@@ -537,13 +711,10 @@
         <div id="summary" class="summary" style="display:none;"></div>
 
         <div id="emptyState" class="empty-state">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-          </svg>
           <div>Enter parameters above to calculate</div>
         </div>
 
-        <table id="resultsTable" style="display:none;" aria-label="Ingredient list">
+        <table id="resultsTable" style="display:none;">
           <thead><tr><th>Ingredient</th><th>Mass (g)</th></tr></thead>
           <tbody id="tbody"></tbody>
           <tfoot><tr><td>Total Weight</td><td id="total"></td></tr></tfoot>
@@ -551,20 +722,198 @@
       </div>
     </div>
 
-    <!-- ════════ TAB 2: LABEL CREATOR ════════ -->
+    <!-- ════════ TAB 2: VM-1 DILUTION ════════ -->
+    <div class="tab-content" id="tab-dilution">
+      <div class="card no-print">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+          </div>
+          <span class="card-title">Dilute 70% VM-1 with 1× m-RPS-2</span>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="dilTarget">Target Strength (% w/v)</label>
+            <input id="dilTarget" type="number" inputmode="decimal" min="0" max="70" step="0.1" placeholder="e.g. 30" />
+          </div>
+          <div>
+            <label for="dilVolume">Final Volume (Liters)</label>
+            <input id="dilVolume" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 7" />
+          </div>
+        </div>
+        <div id="dilErr" class="error"></div>
+        <div class="info-note">Maximum target is 70%. For 75%, mix from scratch using the Calculator tab.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+          </div>
+          <span class="card-title">Dilution Recipe</span>
+        </div>
+
+        <div id="dilEmpty" class="empty-state"><div>Enter target % and volume above</div></div>
+        <table id="dilTable" style="display:none;">
+          <thead><tr><th>Component</th><th>Volume</th></tr></thead>
+          <tbody id="dilBody"></tbody>
+          <tfoot><tr><td>Final Volume</td><td id="dilTotal"></td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 3: 1× m-RPS-2 ════════ -->
+    <div class="tab-content" id="tab-rps2">
+      <div class="card no-print">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+          </div>
+          <span class="card-title">Make 1× m-RPS-2</span>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="rpsVolume">Volume (Liters)</label>
+            <input id="rpsVolume" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 5" />
+          </div>
+        </div>
+        <div id="rpsErr" class="error"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+          </div>
+          <span class="card-title">Ingredients</span>
+        </div>
+
+        <div id="rpsEmpty" class="empty-state"><div>Enter volume above</div></div>
+        <table id="rpsTable" style="display:none;">
+          <thead><tr><th>Ingredient</th><th>Amount</th></tr></thead>
+          <tbody id="rpsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 4: MHP-2 ════════ -->
+    <div class="tab-content" id="tab-mhp2">
+      <div class="card no-print">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+          </div>
+          <span class="card-title">Make MHP-2 (7 L per bag)</span>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="mhpBags">Number of Bags</label>
+            <input id="mhpBags" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 3" />
+          </div>
+        </div>
+        <div id="mhpErr" class="error"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <span class="card-title">Recipe</span>
+        </div>
+
+        <div id="mhpEmpty" class="empty-state"><div>Enter number of bags above</div></div>
+        <div id="mhpResults" style="display:none;">
+          <div class="section-header">Solutes (targeted)</div>
+          <table>
+            <thead><tr><th>Ingredient</th><th>Amount</th></tr></thead>
+            <tbody id="mhpBody"></tbody>
+          </table>
+          <div class="section-header" style="margin-top:24px;">Base Concentrate</div>
+          <table>
+            <thead><tr><th>Ingredient</th><th>Amount</th></tr></thead>
+            <tbody id="mhpBaseBody"></tbody>
+          </table>
+          <div class="info-note" style="margin-top:20px;">
+            <strong>Adjust pH to 8.0 – 8.2.</strong><br>
+            <strong>Osmolality should be between 388 – 403 mOsm.</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 5: STOCK ════════ -->
+    <div class="tab-content" id="tab-stock">
+      <div class="card no-print">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          </div>
+          <span class="card-title">Stock Planning (7 L per bag)</span>
+        </div>
+
+        <p style="color:var(--gray-500); font-size:14px; margin:0 0 16px;">Tick what you want to make and enter how many bags. The shopping list sums everything below.</p>
+
+        <div class="stock-grid" id="stockGrid">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <span class="card-title">Master Shopping List</span>
+        </div>
+
+        <div id="stockEmpty" class="empty-state"><div>Tick at least one item above</div></div>
+        <div id="stockResults" style="display:none;">
+          <div id="stockMhpSection" style="display:none;">
+            <div class="section-header">MHP-2 Section</div>
+            <table>
+              <thead><tr><th>Ingredient</th><th>Amount</th></tr></thead>
+              <tbody id="stockMhpBody"></tbody>
+            </table>
+            <div class="section-header" style="margin-top:16px;">MHP-2 Base Concentrate</div>
+            <table>
+              <thead><tr><th>Ingredient</th><th>Amount</th></tr></thead>
+              <tbody id="stockMhpBaseBody"></tbody>
+            </table>
+          </div>
+          <div id="stockVmSection" style="display:none;">
+            <div class="section-header" style="margin-top:24px;">VM-1 Section</div>
+            <table>
+              <thead><tr><th>Ingredient</th><th>Total Mass (g)</th></tr></thead>
+              <tbody id="stockVmBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 6: LABELS ════════ -->
     <div class="tab-content" id="tab-label">
       <div class="card no-print">
         <div class="card-header">
           <div class="card-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
-            </svg>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
           </div>
           <span class="card-title">Label Parameters</span>
         </div>
 
         <div class="row-4">
           <div>
+            <label for="lblType">Type</label>
+            <select id="lblType">
+              <option value="vm1">VM-1</option>
+              <option value="mhp">MHP-2</option>
+            </select>
+          </div>
+          <div id="lblConcWrap">
             <label for="lblConc">Concentration (%)</label>
             <input id="lblConc" type="number" inputmode="decimal" min="0" max="100" step="0.1" placeholder="e.g. 70" />
           </div>
@@ -576,6 +925,8 @@
             <label for="lblRi">RI</label>
             <input id="lblRi" type="text" inputmode="decimal" placeholder="e.g. 1.412" />
           </div>
+        </div>
+        <div class="row-4" style="margin-top:16px;">
           <div>
             <label for="lblDate">Production Date</label>
             <input id="lblDate" type="date" />
@@ -584,30 +935,25 @@
 
         <div class="toolbar">
           <button id="downloadLabelBtn" class="btn-primary" type="button">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/>
-            </svg>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
             Download Label (PNG)
           </button>
           <span id="labelStatus" class="status"></span>
         </div>
       </div>
 
-      <!-- LABEL PREVIEW -->
       <div class="card">
         <div class="card-header">
           <div class="card-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           </div>
           <span class="card-title">Label Preview <span style="font-weight:400;color:var(--gray-400);font-size:13px;">(4 × 3.33 in)</span></span>
         </div>
 
         <div class="label-preview-wrapper">
           <div class="label" id="labelEl">
-            <!-- Top row: logo + company -->
+            <div class="label-color-bg"></div>
+            <div class="label-color-bar"></div>
             <div class="label-top">
               <img src="./logo.png" alt="Tomorrow.bio" class="label-logo" crossorigin="anonymous" />
               <div class="label-company">
@@ -616,29 +962,150 @@
                 Berlin, Germany
               </div>
             </div>
-
-            <!-- Title -->
-            <div class="label-title">Cryoprotective Agent</div>
-
-            <!-- Big strength -->
+            <div class="label-title" id="lblTitleEl">Cryoprotective Agent</div>
             <div class="label-strength" id="lblStrengthDisplay">&mdash;% <span>w/v</span></div>
-
-            <!-- Meta grid -->
             <div class="label-meta">
               <div><span class="lm-key">Volume</span><span class="lm-val">7 L</span></div>
               <div><span class="lm-key">pH</span><span class="lm-val" id="lblPhDisplay">&mdash;</span></div>
               <div><span class="lm-key">Production</span><span class="lm-val" id="lblProdDisplay">&mdash;</span></div>
               <div><span class="lm-key">RI</span><span class="lm-val" id="lblRiDisplay">&mdash;</span></div>
               <div><span class="lm-key">Expiration</span><span class="lm-val" id="lblExpDisplay">&mdash;</span></div>
+              <div><span class="lm-key">Type</span><span class="lm-val" id="lblTypeDisplay">VM-1</span></div>
             </div>
-
-            <!-- Content / Ingredients -->
             <div class="label-content-title">Content (per 100 ml)</div>
             <div class="label-ingredients" id="lblIngredients"></div>
+            <div class="label-spacer"></div>
+            <div class="label-footer">
+              <div class="address">Tomorrow Biostasis GmbH &middot; Graefestrasse 11, 10967 Berlin, Germany</div>
+              <div class="research">For Research Use Only</div>
+              <div class="made-in">Made in Germany</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 7: BAG LABELS ════════ -->
+    <div class="tab-content" id="tab-bagLabel">
+      <div class="card no-print">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+          </div>
+          <span class="card-title">Bag Label Parameters</span>
+        </div>
+
+        <div class="row-4">
+          <div>
+            <label for="bagNum">Bag Number</label>
+            <input id="bagNum" type="number" inputmode="numeric" min="1" step="1" placeholder="e.g. 19" />
+          </div>
+          <div>
+            <label for="bagType">Concentration</label>
+            <select id="bagType">
+              <option value="mhp">MHP-2</option>
+              <option value="2.5">2.5%</option>
+              <option value="5">5%</option>
+              <option value="7.5">7.5%</option>
+              <option value="10">10%</option>
+              <option value="15">15%</option>
+              <option value="20">20%</option>
+              <option value="25">25%</option>
+              <option value="30">30%</option>
+              <option value="40">40%</option>
+              <option value="50">50%</option>
+              <option value="60">60%</option>
+              <option value="70" selected>70%</option>
+              <option value="75">75%</option>
+            </select>
+          </div>
+          <div>
+            <label for="bagPh">pH</label>
+            <input id="bagPh" type="text" inputmode="decimal" placeholder="e.g. 7.4" />
+          </div>
+          <div>
+            <label for="bagRi">RI</label>
+            <input id="bagRi" type="text" inputmode="decimal" placeholder="e.g. 1.412" />
+          </div>
+        </div>
+        <div class="row-4" style="margin-top:16px;">
+          <div>
+            <label for="bagDate">Production Date</label>
+            <input id="bagDate" type="date" />
+          </div>
+        </div>
+
+        <div style="margin-top:20px; padding-top:20px; border-top: 1px solid var(--gray-100);">
+          <label style="margin-bottom:12px;">Color Coding Style (combine any)</label>
+          <div style="display:flex; flex-wrap:wrap; gap:20px;">
+            <div class="checkbox-row">
+              <input type="checkbox" id="ccBorder" checked>
+              <label for="ccBorder">Thick colored border</label>
+            </div>
+            <div class="checkbox-row">
+              <input type="checkbox" id="ccBar">
+              <label for="ccBar">Top color bar</label>
+            </div>
+            <div class="checkbox-row">
+              <input type="checkbox" id="ccBg">
+              <label for="ccBg">Background tint</label>
+            </div>
+          </div>
+          <div class="checkbox-row" style="margin-top:8px;">
+            <input type="checkbox" id="bagRecirc">
+            <label for="bagRecirc"><strong>Recirculation</strong> (adds diagonal RECIRCULATE stamp)</label>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button id="downloadBagBtn" class="btn-primary" type="button">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
+            Download Label (PNG)
+          </button>
+          <span id="bagLabelStatus" class="status"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </div>
+          <span class="card-title">Bag Label Preview <span style="font-weight:400;color:var(--gray-400);font-size:13px;">(4 × 3.33 in)</span></span>
+        </div>
+
+        <div class="label-preview-wrapper">
+          <div class="label" id="bagLabelEl">
+            <div class="label-color-bg"></div>
+            <div class="label-color-bar"></div>
+            <div class="label-stamp">RECIRCULATE</div>
+
+            <div class="label-top">
+              <img src="./logo.png" alt="Tomorrow.bio" class="label-logo" crossorigin="anonymous" />
+              <div class="label-company">
+                Tomorrow Biostasis GmbH<br>
+                Graefestrasse 11, 10967<br>
+                Berlin, Germany
+              </div>
+            </div>
+            <div class="label-title">Cryoprotective Agent</div>
+
+            <div class="label-bag-num" id="bagNumDisplay">
+              <span class="bag-prefix">BAG</span>
+              <span id="bagNumValue">&mdash;</span>
+            </div>
+
+            <div class="label-meta">
+              <div><span class="lm-key">Strength</span><span class="lm-val" id="bagStrengthDisplay">70% w/v</span></div>
+              <div><span class="lm-key">Volume</span><span class="lm-val">7 L</span></div>
+              <div><span class="lm-key">pH</span><span class="lm-val" id="bagPhDisplay">&mdash;</span></div>
+              <div><span class="lm-key">RI</span><span class="lm-val" id="bagRiDisplay">&mdash;</span></div>
+              <div><span class="lm-key">Production</span><span class="lm-val" id="bagProdDisplay">&mdash;</span></div>
+              <div><span class="lm-key">Expiration</span><span class="lm-val" id="bagExpDisplay">&mdash;</span></div>
+            </div>
 
             <div class="label-spacer"></div>
 
-            <!-- Footer -->
             <div class="label-footer">
               <div class="address">Tomorrow Biostasis GmbH &middot; Graefestrasse 11, 10967 Berlin, Germany</div>
               <div class="research">For Research Use Only</div>
@@ -659,6 +1126,66 @@
 
   const $ = (id) => document.getElementById(id);
 
+  /* ── Constants & shared data ── */
+  const REF = 70;
+  const BASE_FIXED = (96.59 + (REF / 5)) * 1.15;
+
+  // VM-1 percentages from the bag screenshot
+  const VM1_PERCENTAGES = [2.5, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 75];
+
+  // Color map (per screenshot)
+  const COLOR_MAP = {
+    'mhp':  { name: 'Blue',         color: '#5B9BD5' },
+    '2.5':  { name: 'Dark Red',     color: '#7F1D1D' },
+    '5':    { name: 'Red',          color: '#DC2626' },
+    '7.5':  { name: 'Light Red',    color: '#F87171' },
+    '10':   { name: 'Orange',       color: '#F59E0B' },
+    '15':   { name: 'Orange',       color: '#F59E0B' },
+    '20':   { name: 'Light Orange', color: '#FBBF24' },
+    '25':   { name: 'Light Orange', color: '#FBBF24' },
+    '30':   { name: 'Yellow',       color: '#FDE047' },
+    '40':   { name: 'Yellow',       color: '#FDE047' },
+    '50':   { name: 'Green',        color: '#4ADE80' },
+    '60':   { name: 'Green',        color: '#4ADE80' },
+    '70':   { name: 'Dark Green',   color: '#15803D' },
+    '75':   { name: 'Dark Green',   color: '#15803D' },
+  };
+
+  // 1× m-RPS-2 ingredients per liter (user-specified)
+  const RPS2_PER_LITER = [
+    ["KCl",     2.11,  "g"],
+    ["Glucose", 41.1,  "g"],
+    ["MgCl\u2082", 2.033, "g"],
+    ["THAM",    1.21,  "g"],
+  ];
+  const RPS2_SOLIDS_TOTAL = RPS2_PER_LITER.reduce((s, [, v]) => s + v, 0); // ~46.45 g
+  const RPS2_WATER_PER_L  = 1000 - RPS2_SOLIDS_TOTAL; // ~953.55 mL
+
+  // MHP-2 per 3 bags (each bag = 7 L → 21 L total)
+  const MHP2_PER_3_BAGS = [
+    ["Water dest.",          21000,  "g"],
+    ["Hydroxyethyl starch",  1050,   "g"],
+    ["Mannitol",             923.49, "g"],
+    ["HEPES",                75.06,  "g"],
+    ["Potassium chloride",   44.31,  "g"],
+    ["Sodium bicarbonate",   17.64,  "g"],
+    ["Glutathione",          19.36,  "g"],
+    ["D-Glucose (Dextrose)", 18.92,  "g"],
+    ["Adenine-HCl",          3.39,   "g"],
+    ["D-ribose",             2.96,   "g"],
+    ["Calcium chloride",     2.33,   "g"],
+    ["Magnesium chloride",   2,      "g"],
+  ];
+  const MHP2_BASE_PER_3_BAGS = [
+    ["Heparin", 21000, "IU"],
+    ["Insulin", 840,   "IU"],
+  ];
+
+  function round2(x) { return Math.round((x + Number.EPSILON) * 100) / 100; }
+  function fmt(x, dec = 2) {
+    return Number(x).toLocaleString(undefined, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  }
+
   /* ── Tab switching ── */
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -670,7 +1197,7 @@
   });
 
   /* ══════════════════════════════════
-     CALCULATOR TAB
+     CALCULATOR (VM-1 from scratch)
      ══════════════════════════════════ */
   const strengthEl   = $("strength");
   const amountEl     = $("amount");
@@ -678,30 +1205,8 @@
   const totalEl      = $("total");
   const errEl        = $("err");
   const summaryEl    = $("summary");
-  const statusEl     = $("status");
   const emptyState   = $("emptyState");
   const resultsTable = $("resultsTable");
-
-  // Shared constant: reference strength for fixed ion concentrations
-  const REF = 70;
-  const BASE_FIXED = (96.59 + (REF / 5)) * 1.15;
-
-  function round2(x) { return Math.round((x + Number.EPSILON) * 100) / 100; }
-
-  function fmt(x) {
-    return round2(x).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  function parseInputs() {
-    const strength = Number(strengthEl.value);
-    const amount   = Number(amountEl.value);
-    if (!Number.isFinite(strength) || !Number.isFinite(amount) || strengthEl.value === '' || amountEl.value === '') {
-      return { ok: false, err: "" };
-    }
-    if (strength < 0 || strength > 100) return { ok: false, err: "Strength must be between 0 and 100." };
-    if (amount <= 0)                    return { ok: false, err: "Volume must be greater than 0." };
-    return { ok: true, strength, amount };
-  }
 
   function compute(strength, amount) {
     const s = Number(strength);
@@ -739,99 +1244,342 @@
     return { items, total };
   }
 
-  function updateUrl(strength, amount) {
-    const url = new URL(window.location.href);
-    if (strength == null || amount == null) {
-      url.searchParams.delete("s");
-      url.searchParams.delete("a");
-    } else {
-      url.searchParams.set("s", String(strength));
-      url.searchParams.set("a", String(amount));
-    }
-    history.replaceState(null, "", url.toString());
-  }
-
-  function loadFromUrl() {
-    const url = new URL(window.location.href);
-    const s = url.searchParams.get("s");
-    const a = url.searchParams.get("a");
-    if (s !== null) strengthEl.value = s;
-    if (a !== null) amountEl.value = a;
-  }
-
-  function render() {
+  function renderCalc() {
     errEl.textContent   = "";
     tbody.innerHTML     = "";
     totalEl.textContent = "";
     summaryEl.style.display = "none";
     summaryEl.innerHTML     = "";
 
-    const p = parseInputs();
-    if (!p.ok) {
-      errEl.textContent = p.err;
-      emptyState.style.display   = "block";
+    const s = Number(strengthEl.value);
+    const a = Number(amountEl.value);
+
+    if (!Number.isFinite(s) || !Number.isFinite(a) || strengthEl.value === '' || amountEl.value === '') {
+      emptyState.style.display = "block";
       resultsTable.style.display = "none";
-      updateUrl(null, null);
       return;
     }
+    if (s < 0 || s > 100) { errEl.textContent = "Strength must be between 0 and 100."; emptyState.style.display = "block"; resultsTable.style.display = "none"; return; }
+    if (a <= 0)            { errEl.textContent = "Volume must be greater than 0.";       emptyState.style.display = "block"; resultsTable.style.display = "none"; return; }
 
-    emptyState.style.display   = "none";
+    emptyState.style.display = "none";
     resultsTable.style.display = "table";
 
-    const { items, total } = compute(p.strength, p.amount);
-
+    const { items, total } = compute(s, a);
     summaryEl.style.display = "flex";
-    summaryEl.innerHTML = `<span class="summary-dot"></span> ${p.strength}% w/v concentration &nbsp;&bull;&nbsp; ${p.amount} L volume`;
+    summaryEl.innerHTML = `<span class="summary-dot"></span> ${s}% w/v &nbsp;&bull;&nbsp; ${a} L`;
 
     for (const [name, grams] of items) {
       const tr = document.createElement("tr");
       tr.innerHTML = `<td>${name}</td><td>${fmt(grams)} g</td>`;
       tbody.appendChild(tr);
     }
-
     totalEl.textContent = fmt(total) + " g";
-    updateUrl(p.strength, p.amount);
   }
-
-  strengthEl.addEventListener("input", render);
-  amountEl.addEventListener("input", render);
-
-  $("printBtn").addEventListener("click", () => window.print());
-  $("copyLinkBtn").addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      statusEl.textContent = "\u2713 Link copied!";
-      setTimeout(() => statusEl.textContent = "", 2000);
-    } catch {
-      statusEl.textContent = "Copy blocked by browser";
-      setTimeout(() => statusEl.textContent = "", 2500);
-    }
-  });
-
-  loadFromUrl();
-  render();
+  strengthEl.addEventListener("input", renderCalc);
+  amountEl.addEventListener("input", renderCalc);
+  renderCalc();
 
   /* ══════════════════════════════════
-     LABEL CREATOR TAB
+     VM-1 DILUTION
      ══════════════════════════════════ */
-  const lblConc = $("lblConc");
-  const lblPh   = $("lblPh");
-  const lblRi   = $("lblRi");
-  const lblDate = $("lblDate");
+  const dilTarget = $("dilTarget");
+  const dilVolume = $("dilVolume");
+  const dilErr    = $("dilErr");
+  const dilEmpty  = $("dilEmpty");
+  const dilTable  = $("dilTable");
+  const dilBody   = $("dilBody");
+  const dilTotal  = $("dilTotal");
+
+  function renderDilution() {
+    dilErr.textContent = "";
+    dilBody.innerHTML  = "";
+    const t = Number(dilTarget.value);
+    const v = Number(dilVolume.value);
+
+    if (!Number.isFinite(t) || !Number.isFinite(v) || dilTarget.value === '' || dilVolume.value === '') {
+      dilEmpty.style.display = "block";
+      dilTable.style.display = "none";
+      return;
+    }
+    if (t < 0 || t > 70) {
+      dilErr.textContent = "Target must be between 0 and 70%. For 75%, use the Calculator tab.";
+      dilEmpty.style.display = "block";
+      dilTable.style.display = "none";
+      return;
+    }
+    if (v <= 0) {
+      dilErr.textContent = "Volume must be greater than 0.";
+      dilEmpty.style.display = "block";
+      dilTable.style.display = "none";
+      return;
+    }
+
+    const stockL = v * (t / 70);
+    const rpsL   = v - stockL;
+
+    dilEmpty.style.display = "none";
+    dilTable.style.display = "table";
+
+    const rows = [
+      ["70% VM-1 stock",  stockL],
+      ["1\u00d7 m-RPS-2", rpsL],
+    ];
+    for (const [name, L] of rows) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${name}</td><td>${fmt(L, 3)} L &nbsp;(${fmt(L * 1000, 1)} mL)</td>`;
+      dilBody.appendChild(tr);
+    }
+    dilTotal.textContent = `${fmt(v, 3)} L (${t}% w/v)`;
+  }
+  dilTarget.addEventListener("input", renderDilution);
+  dilVolume.addEventListener("input", renderDilution);
+  renderDilution();
+
+  /* ══════════════════════════════════
+     1× m-RPS-2
+     ══════════════════════════════════ */
+  const rpsVolume = $("rpsVolume");
+  const rpsErr    = $("rpsErr");
+  const rpsEmpty  = $("rpsEmpty");
+  const rpsTable  = $("rpsTable");
+  const rpsBody   = $("rpsBody");
+
+  function renderRps() {
+    rpsErr.textContent = "";
+    rpsBody.innerHTML  = "";
+    const L = Number(rpsVolume.value);
+    if (!Number.isFinite(L) || rpsVolume.value === '') {
+      rpsEmpty.style.display = "block";
+      rpsTable.style.display = "none";
+      return;
+    }
+    if (L <= 0) {
+      rpsErr.textContent = "Volume must be greater than 0.";
+      rpsEmpty.style.display = "block";
+      rpsTable.style.display = "none";
+      return;
+    }
+
+    rpsEmpty.style.display = "none";
+    rpsTable.style.display = "table";
+
+    for (const [name, perL, unit] of RPS2_PER_LITER) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${name}</td><td>${fmt(perL * L, 3)} ${unit}</td>`;
+      rpsBody.appendChild(tr);
+    }
+    // Water q.s. note
+    const waterMl = RPS2_WATER_PER_L * L;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>Water (q.s. to ${fmt(L * 1000, 0)} mL)</td><td>~${fmt(waterMl, 1)} mL</td>`;
+    rpsBody.appendChild(tr);
+  }
+  rpsVolume.addEventListener("input", renderRps);
+  renderRps();
+
+  /* ══════════════════════════════════
+     MHP-2
+     ══════════════════════════════════ */
+  const mhpBags    = $("mhpBags");
+  const mhpErr     = $("mhpErr");
+  const mhpEmpty   = $("mhpEmpty");
+  const mhpResults = $("mhpResults");
+  const mhpBody    = $("mhpBody");
+  const mhpBaseBody = $("mhpBaseBody");
+
+  function renderMhp() {
+    mhpErr.textContent = "";
+    mhpBody.innerHTML  = "";
+    mhpBaseBody.innerHTML = "";
+    const n = Number(mhpBags.value);
+    if (!Number.isFinite(n) || mhpBags.value === '') {
+      mhpEmpty.style.display = "block";
+      mhpResults.style.display = "none";
+      return;
+    }
+    if (n <= 0) {
+      mhpErr.textContent = "Number of bags must be greater than 0.";
+      mhpEmpty.style.display = "block";
+      mhpResults.style.display = "none";
+      return;
+    }
+
+    mhpEmpty.style.display = "none";
+    mhpResults.style.display = "block";
+
+    const factor = n / 3;
+    for (const [name, val, unit] of MHP2_PER_3_BAGS) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${name}</td><td>${fmt(val * factor, 2)} ${unit}</td>`;
+      mhpBody.appendChild(tr);
+    }
+    for (const [name, val, unit] of MHP2_BASE_PER_3_BAGS) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${name}</td><td>${fmt(val * factor, 0)} ${unit}</td>`;
+      mhpBaseBody.appendChild(tr);
+    }
+  }
+  mhpBags.addEventListener("input", renderMhp);
+  renderMhp();
+
+  /* ══════════════════════════════════
+     STOCK
+     ══════════════════════════════════ */
+  const stockGrid = $("stockGrid");
+  const stockEmpty   = $("stockEmpty");
+  const stockResults = $("stockResults");
+  const stockMhpSection = $("stockMhpSection");
+  const stockVmSection  = $("stockVmSection");
+  const stockMhpBody    = $("stockMhpBody");
+  const stockMhpBaseBody = $("stockMhpBaseBody");
+  const stockVmBody     = $("stockVmBody");
+
+  // Build stock rows
+  function buildStockGrid() {
+    const items = [{ key: 'mhp', label: 'MHP-2' }];
+    for (const p of VM1_PERCENTAGES) items.push({ key: String(p), label: p + '%' });
+
+    for (const item of items) {
+      const row = document.createElement("div");
+      row.className = "stock-row";
+      const swatch = COLOR_MAP[item.key].color;
+      row.innerHTML = `
+        <input type="checkbox" data-key="${item.key}">
+        <div class="color-swatch" style="background:${swatch}"></div>
+        <div class="stock-label">${item.label}</div>
+        <input type="number" min="0" step="1" placeholder="bags" data-input="${item.key}" disabled>
+      `;
+      stockGrid.appendChild(row);
+    }
+
+    stockGrid.addEventListener('input', renderStock);
+    stockGrid.addEventListener('change', (e) => {
+      if (e.target.type === 'checkbox') {
+        const k = e.target.dataset.key;
+        const numInput = stockGrid.querySelector(`input[data-input="${k}"]`);
+        numInput.disabled = !e.target.checked;
+        if (!e.target.checked) numInput.value = '';
+        renderStock();
+      }
+    });
+  }
+  buildStockGrid();
+
+  function renderStock() {
+    stockMhpBody.innerHTML = "";
+    stockMhpBaseBody.innerHTML = "";
+    stockVmBody.innerHTML = "";
+
+    let mhpBagsCount = 0;
+    const vmTotals = {}; // ingredient name → total grams
+
+    const checks = stockGrid.querySelectorAll('input[type="checkbox"]');
+    checks.forEach(cb => {
+      if (!cb.checked) return;
+      const k = cb.dataset.key;
+      const numInput = stockGrid.querySelector(`input[data-input="${k}"]`);
+      const n = Number(numInput.value);
+      if (!Number.isFinite(n) || n <= 0) return;
+
+      if (k === 'mhp') {
+        mhpBagsCount += n;
+      } else {
+        const pct = Number(k);
+        const liters = n * 7;
+        const { items } = compute(pct, liters);
+        for (const [name, grams] of items) {
+          vmTotals[name] = (vmTotals[name] || 0) + grams;
+        }
+      }
+    });
+
+    const hasMhp = mhpBagsCount > 0;
+    const hasVm  = Object.keys(vmTotals).length > 0;
+
+    if (!hasMhp && !hasVm) {
+      stockEmpty.style.display = "block";
+      stockResults.style.display = "none";
+      return;
+    }
+
+    stockEmpty.style.display = "none";
+    stockResults.style.display = "block";
+
+    if (hasMhp) {
+      stockMhpSection.style.display = "block";
+      const factor = mhpBagsCount / 3;
+      for (const [name, val, unit] of MHP2_PER_3_BAGS) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${name}</td><td>${fmt(val * factor, 2)} ${unit}</td>`;
+        stockMhpBody.appendChild(tr);
+      }
+      for (const [name, val, unit] of MHP2_BASE_PER_3_BAGS) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${name}</td><td>${fmt(val * factor, 0)} ${unit}</td>`;
+        stockMhpBaseBody.appendChild(tr);
+      }
+    } else {
+      stockMhpSection.style.display = "none";
+    }
+
+    if (hasVm) {
+      stockVmSection.style.display = "block";
+      // preserve canonical order
+      const order = ["DMSO", "Ethylene Glycol", "H\u2082O (Water)", "Glucose", "Tris Base", "KCl", "MgCl\u2082"];
+      for (const name of order) {
+        if (vmTotals[name] !== undefined) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${name}</td><td>${fmt(vmTotals[name], 2)} g</td>`;
+          stockVmBody.appendChild(tr);
+        }
+      }
+    } else {
+      stockVmSection.style.display = "none";
+    }
+  }
+  renderStock();
+
+  /* ══════════════════════════════════
+     LABELS (existing — VM-1 / MHP-2 toggle)
+     ══════════════════════════════════ */
+  const lblType  = $("lblType");
+  const lblConcWrap = $("lblConcWrap");
+  const lblConc  = $("lblConc");
+  const lblPh    = $("lblPh");
+  const lblRi    = $("lblRi");
+  const lblDate  = $("lblDate");
+
+  function mhpPer100ml() {
+    // 3 bags = 21 L = 21000 mL → divide by 210 for per-100-mL
+    const out = [];
+    for (const [name, val, unit] of MHP2_PER_3_BAGS) {
+      out.push([name, val / 210, unit]);
+    }
+    return out;
+  }
 
   function renderLabel() {
-    const s  = Number(lblConc.value) || 0;
-    const ph = lblPh.value || "\u2014";
-    const ri = lblRi.value || "\u2014";
+    const type = lblType.value;
+    const ph   = lblPh.value || "\u2014";
+    const ri   = lblRi.value || "\u2014";
 
-    // Strength
-    $("lblStrengthDisplay").innerHTML = s ? `${s}% <span>w/v</span>` : `\u2014% <span>w/v</span>`;
+    if (type === 'mhp') {
+      lblConcWrap.style.display = 'none';
+      $("lblStrengthDisplay").innerHTML = `MHP-2`;
+      $("lblStrengthDisplay").style.fontSize = '28pt';
+      $("lblTypeDisplay").textContent = "MHP-2";
+    } else {
+      lblConcWrap.style.display = '';
+      const s = Number(lblConc.value) || 0;
+      $("lblStrengthDisplay").innerHTML = s ? `${s}% <span>w/v</span>` : `\u2014% <span>w/v</span>`;
+      $("lblStrengthDisplay").style.fontSize = '26pt';
+      $("lblTypeDisplay").textContent = "VM-1";
+    }
 
-    // pH & RI
     $("lblPhDisplay").textContent = ph;
     $("lblRiDisplay").textContent = ri;
 
-    // Dates
     if (lblDate.value) {
       const prod = new Date(lblDate.value + "T00:00:00");
       const exp  = new Date(prod);
@@ -844,70 +1592,150 @@
       $("lblExpDisplay").textContent  = "\u2014";
     }
 
-    // Ingredients per 100 ml  (per-liter values / 10)
-    const dmso100    = s * 10 * 0.5019 / 10;
-    const eg100      = s * 10 * 0.4981 / 10;
-    const glucose100 = BASE_FIXED * 0.3245 / 10;
-    const tris100    = BASE_FIXED * 0.0096 / 10;
-    const kcl100     = BASE_FIXED * 0.0166 / 10;
-    const mgcl100    = 2.03 / 10;
-
-    const ings = [
-      ["DMSO",            dmso100],
-      ["Ethylene Glycol", eg100],
-      ["Glucose",         glucose100],
-      ["Tris Base",       tris100],
-      ["KCl",             kcl100],
-      ["MgCl\u2082",      mgcl100],
-    ];
-
     let html = '';
-    for (const [name, val] of ings) {
-      html += `<div class="ing-row"><span>${name}</span><span>${val.toFixed(3)} g</span></div>`;
-    }
-    // HCl — listed without amount
-    html += `<div class="ing-row"><span>HCl</span><span style="color:#888;">pH adj.</span></div>`;
-    // Water — compute per 100 ml from the calculator (1L / 10)
-    const waterPerL = compute(s, 1).items.find(i => i[0].startsWith("H\u2082O"))[1];
-    const water100 = waterPerL / 10;
-    html += `<div class="ing-row"><span>Water</span><span>${water100.toFixed(3)} g</span></div>`;
+    if (type === 'mhp') {
+      const ings = mhpPer100ml();
+      for (const [name, val, unit] of ings) {
+        html += `<div class="ing-row"><span>${name}</span><span>${fmt(val, 3)} ${unit}</span></div>`;
+      }
+    } else {
+      const s = Number(lblConc.value) || 0;
+      const dmso100    = s * 0.5019;
+      const eg100      = s * 0.4981;
+      const glucose100 = BASE_FIXED * 0.3245 / 10;
+      const tris100    = BASE_FIXED * 0.0096 / 10;
+      const kcl100     = BASE_FIXED * 0.0166 / 10;
+      const mgcl100    = 2.03 / 10;
 
+      const ings = [
+        ["DMSO",            dmso100],
+        ["Ethylene Glycol", eg100],
+        ["Glucose",         glucose100],
+        ["Tris Base",       tris100],
+        ["KCl",             kcl100],
+        ["MgCl\u2082",      mgcl100],
+      ];
+      for (const [name, val] of ings) {
+        html += `<div class="ing-row"><span>${name}</span><span>${fmt(val, 3)} g</span></div>`;
+      }
+      html += `<div class="ing-row"><span>HCl</span><span style="color:#888;">pH adj.</span></div>`;
+      const waterPerL = compute(s, 1).items.find(i => i[0].startsWith("H\u2082O"))[1];
+      html += `<div class="ing-row"><span>Water</span><span>${fmt(waterPerL / 10, 3)} g</span></div>`;
+    }
     $("lblIngredients").innerHTML = html;
   }
 
+  lblType.addEventListener("change", renderLabel);
   lblConc.addEventListener("input", renderLabel);
   lblPh.addEventListener("input",   renderLabel);
   lblRi.addEventListener("input",   renderLabel);
   lblDate.addEventListener("input", renderLabel);
-
   renderLabel();
 
-  /* ── Download label as high-res PNG ── */
   $("downloadLabelBtn").addEventListener("click", async () => {
     const labelEl     = $("labelEl");
     const labelStatus = $("labelStatus");
     labelStatus.textContent = "Generating\u2026";
-
     try {
-      const canvas = await html2canvas(labelEl, {
-        scale: 4,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      });
-
+      const canvas = await html2canvas(labelEl, { scale: 4, useCORS: true, backgroundColor: "#ffffff" });
       const link = document.createElement("a");
-      const conc    = lblConc.value || "X";
+      const type = lblType.value === 'mhp' ? 'MHP2' : (lblConc.value || 'X') + 'pct';
       const dateStr = lblDate.value || "undated";
-      link.download = `CPA_Label_${conc}pct_${dateStr}.png`;
-      link.href     = canvas.toDataURL("image/png");
+      link.download = `Label_${type}_${dateStr}.png`;
+      link.href = canvas.toDataURL("image/png");
       link.click();
-
       labelStatus.textContent = "\u2713 Downloaded!";
       setTimeout(() => labelStatus.textContent = "", 2500);
     } catch (e) {
       console.error(e);
       labelStatus.textContent = "Download failed";
       setTimeout(() => labelStatus.textContent = "", 3000);
+    }
+  });
+
+  /* ══════════════════════════════════
+     BAG LABELS (numbered, color-coded)
+     ══════════════════════════════════ */
+  const bagNum   = $("bagNum");
+  const bagType  = $("bagType");
+  const bagPh    = $("bagPh");
+  const bagRi    = $("bagRi");
+  const bagDate  = $("bagDate");
+  const ccBorder = $("ccBorder");
+  const ccBar    = $("ccBar");
+  const ccBg     = $("ccBg");
+  const bagRecirc = $("bagRecirc");
+  const bagLabelEl = $("bagLabelEl");
+
+  function renderBagLabel() {
+    const key = bagType.value;
+    const colorInfo = COLOR_MAP[key];
+    const color = colorInfo.color;
+
+    // Bag number
+    $("bagNumValue").textContent = bagNum.value || "\u2014";
+
+    // Strength row
+    const strengthLabel = (key === 'mhp') ? 'MHP-2' : (key + '% w/v');
+    $("bagStrengthDisplay").textContent = strengthLabel;
+
+    // pH, RI
+    $("bagPhDisplay").textContent = bagPh.value || "\u2014";
+    $("bagRiDisplay").textContent = bagRi.value || "\u2014";
+
+    // Dates
+    if (bagDate.value) {
+      const prod = new Date(bagDate.value + "T00:00:00");
+      const exp  = new Date(prod);
+      exp.setFullYear(exp.getFullYear() + 2);
+      const opts = { year: 'numeric', month: 'short', day: 'numeric' };
+      $("bagProdDisplay").textContent = prod.toLocaleDateString('en-GB', opts);
+      $("bagExpDisplay").textContent  = exp.toLocaleDateString('en-GB', opts);
+    } else {
+      $("bagProdDisplay").textContent = "\u2014";
+      $("bagExpDisplay").textContent  = "\u2014";
+    }
+
+    // Color coding
+    bagLabelEl.classList.toggle('color-border', ccBorder.checked);
+    bagLabelEl.classList.toggle('color-bar',    ccBar.checked);
+    bagLabelEl.classList.toggle('color-bg',     ccBg.checked);
+
+    if (ccBorder.checked) {
+      bagLabelEl.style.borderColor = color;
+    } else {
+      bagLabelEl.style.borderColor = '#222';
+    }
+    bagLabelEl.querySelector('.label-color-bar').style.background = color;
+    bagLabelEl.querySelector('.label-color-bg').style.background  = color;
+
+    // Recirculate stamp
+    bagLabelEl.classList.toggle('recirculate', bagRecirc.checked);
+  }
+
+  [bagNum, bagType, bagPh, bagRi, bagDate, ccBorder, ccBar, ccBg, bagRecirc].forEach(el => {
+    el.addEventListener('input', renderBagLabel);
+    el.addEventListener('change', renderBagLabel);
+  });
+  renderBagLabel();
+
+  $("downloadBagBtn").addEventListener("click", async () => {
+    const bagLabelStatus = $("bagLabelStatus");
+    bagLabelStatus.textContent = "Generating\u2026";
+    try {
+      const canvas = await html2canvas(bagLabelEl, { scale: 4, useCORS: true, backgroundColor: "#ffffff" });
+      const link = document.createElement("a");
+      const num = bagNum.value || "X";
+      const t = bagType.value === 'mhp' ? 'MHP2' : bagType.value + 'pct';
+      link.download = `Bag${num}_${t}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      bagLabelStatus.textContent = "\u2713 Downloaded!";
+      setTimeout(() => bagLabelStatus.textContent = "", 2500);
+    } catch (e) {
+      console.error(e);
+      bagLabelStatus.textContent = "Download failed";
+      setTimeout(() => bagLabelStatus.textContent = "", 3000);
     }
   });
 </script>
