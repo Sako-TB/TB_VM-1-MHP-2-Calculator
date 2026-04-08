@@ -613,35 +613,43 @@
 
     .label.color-bg .label-color-bg { display: block; }
 
-    /* Recirculate stamp */
-    .label-stamp {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-22deg);
-      font-size: 30pt;
-      font-weight: 900;
-      color: rgba(192, 0, 0, 0.55);
-      border: 5px solid rgba(192, 0, 0, 0.55);
-      padding: 4px 18px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      pointer-events: none;
-      z-index: 5;
-      white-space: nowrap;
-      display: none;
-      font-family: 'DM Sans', sans-serif;
-      border-radius: 4px;
+    /* Banners (recirculate / medication) */
+    .label-banners {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin: 3px 0 2px;
+      position: relative;
+      z-index: 2;
     }
-
-    .label.recirculate .label-stamp { display: block; }
+    .label-banner {
+      text-align: center;
+      font-weight: 900;
+      font-size: 11pt;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 3px 6px;
+      border-radius: 3px;
+    }
+    .label-banner.recirc {
+      background: #c00;
+      color: #fff;
+      border: 1.5px solid #800;
+    }
+    .label-banner.medication {
+      background: #fff;
+      color: #c00;
+      border: 2px solid #c00;
+    }
 
     /* Print */
     @media print {
       .no-print { display: none !important; }
       body { background: white; }
       .container { padding: 0; max-width: none; }
-      .card { box-shadow: none; border: 1px solid #ddd; }
+      .card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+      .tab-content { display: none !important; }
+      .tab-content.active { display: block !important; }
     }
 
     @media (max-width: 640px) {
@@ -660,6 +668,10 @@
     <div class="header">
       <img src="./logo.png" alt="Tomorrow.bio" class="logo" />
       <span class="badge">Internal Tool</span>
+      <button id="globalPrintBtn" class="no-print" type="button" style="margin-left:auto;">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+        Print
+      </button>
     </div>
 
     <h1>Cryoprotectant Calculator</h1>
@@ -669,6 +681,7 @@
     <div class="tabs no-print">
       <button class="tab-btn active" data-tab="calc">Calculator</button>
       <button class="tab-btn" data-tab="dilution">VM-1 Dilution</button>
+      <button class="tab-btn" data-tab="dilBase">Dilution Base</button>
       <button class="tab-btn" data-tab="rps2">1× m-RPS-2</button>
       <button class="tab-btn" data-tab="mhp2">MHP-2</button>
       <button class="tab-btn" data-tab="stock">Stock</button>
@@ -760,6 +773,50 @@
           <tbody id="dilBody"></tbody>
           <tfoot><tr><td>Final Volume</td><td id="dilTotal"></td></tr></tfoot>
         </table>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 2b: DILUTION BASE CALCULATOR ════════ -->
+    <div class="tab-content" id="tab-dilBase">
+      <div class="card no-print">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          </div>
+          <span class="card-title">Plan Multiple Dilutions at Once</span>
+        </div>
+
+        <p style="color:var(--gray-500); font-size:14px; margin:0 0 16px;">Enter how many different concentrations you need and how many liters of each. Tells you total 70% stock + 1× m-RPS-2 needed.</p>
+
+        <div class="row" style="margin-bottom:16px;">
+          <div>
+            <label for="dbCount">Number of Concentrations</label>
+            <input id="dbCount" type="number" inputmode="numeric" min="1" max="20" step="1" placeholder="e.g. 3" />
+          </div>
+        </div>
+
+        <div id="dbRows"></div>
+        <div id="dbErr" class="error"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+          </div>
+          <span class="card-title">Total Base Required</span>
+        </div>
+
+        <div id="dbEmpty" class="empty-state"><div>Enter the number of concentrations above</div></div>
+
+        <div id="dbResults" style="display:none;">
+          <table>
+            <thead><tr><th>Component</th><th>Volume</th></tr></thead>
+            <tbody id="dbBody"></tbody>
+            <tfoot><tr><td>Total Final Volume</td><td id="dbTotal"></td></tr></tfoot>
+          </table>
+          <div class="info-note" style="margin-top:16px;" id="dbBreakdown"></div>
+        </div>
       </div>
     </div>
 
@@ -1053,7 +1110,11 @@
           </div>
           <div class="checkbox-row" style="margin-top:8px;">
             <input type="checkbox" id="bagRecirc">
-            <label for="bagRecirc"><strong>Recirculation</strong> (adds diagonal RECIRCULATE stamp)</label>
+            <label for="bagRecirc"><strong>Recirculation</strong> (adds RECIRCULATE banner)</label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="bagMedication">
+            <label for="bagMedication"><strong>Medication</strong> (adds MEDICATION banner)</label>
           </div>
         </div>
 
@@ -1078,7 +1139,6 @@
           <div class="label" id="bagLabelEl">
             <div class="label-color-bg"></div>
             <div class="label-color-bar"></div>
-            <div class="label-stamp">RECIRCULATE</div>
 
             <div class="label-top">
               <img src="./logo.png" alt="Tomorrow.bio" class="label-logo" crossorigin="anonymous" />
@@ -1106,6 +1166,8 @@
 
             <div class="label-spacer"></div>
 
+            <div class="label-banners" id="bagBanners"></div>
+
             <div class="label-footer">
               <div class="address">Tomorrow Biostasis GmbH &middot; Graefestrasse 11, 10967 Berlin, Germany</div>
               <div class="research">For Research Use Only</div>
@@ -1125,6 +1187,8 @@
   }
 
   const $ = (id) => document.getElementById(id);
+
+  $("globalPrintBtn").addEventListener("click", () => window.print());
 
   /* ── Constants & shared data ── */
   const REF = 70;
@@ -1335,6 +1399,111 @@
   dilTarget.addEventListener("input", renderDilution);
   dilVolume.addEventListener("input", renderDilution);
   renderDilution();
+
+  /* ══════════════════════════════════
+     DILUTION BASE CALCULATOR
+     ══════════════════════════════════ */
+  const dbCount = $("dbCount");
+  const dbRows  = $("dbRows");
+  const dbErr   = $("dbErr");
+  const dbEmpty = $("dbEmpty");
+  const dbResults = $("dbResults");
+  const dbBody  = $("dbBody");
+  const dbTotal = $("dbTotal");
+  const dbBreakdown = $("dbBreakdown");
+
+  function buildDbRows() {
+    const n = Math.max(0, Math.min(20, parseInt(dbCount.value) || 0));
+    dbRows.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+      const div = document.createElement('div');
+      div.className = 'row';
+      div.style.marginBottom = '12px';
+      div.innerHTML = `
+        <div>
+          <label>Concentration #${i+1} (%)</label>
+          <input type="number" min="0" max="70" step="0.1" placeholder="e.g. 30" data-db-conc="${i}" />
+        </div>
+        <div>
+          <label>Volume #${i+1} (L)</label>
+          <input type="number" min="0" step="0.1" placeholder="e.g. 7" data-db-vol="${i}" />
+        </div>
+      `;
+      dbRows.appendChild(div);
+    }
+    // attach listeners
+    dbRows.querySelectorAll('input').forEach(inp => inp.addEventListener('input', renderDbBase));
+    renderDbBase();
+  }
+
+  function renderDbBase() {
+    dbErr.textContent = '';
+    dbBody.innerHTML  = '';
+    dbBreakdown.innerHTML = '';
+
+    const concs = dbRows.querySelectorAll('input[data-db-conc]');
+    const vols  = dbRows.querySelectorAll('input[data-db-vol]');
+    if (concs.length === 0) {
+      dbEmpty.style.display = 'block';
+      dbResults.style.display = 'none';
+      return;
+    }
+
+    let totalStock = 0;
+    let totalRps   = 0;
+    let totalFinal = 0;
+    let breakdownHtml = '<strong>Breakdown:</strong><br>';
+    let anyValid = false;
+    let hasError = false;
+
+    for (let i = 0; i < concs.length; i++) {
+      const c = Number(concs[i].value);
+      const v = Number(vols[i].value);
+      if (concs[i].value === '' && vols[i].value === '') continue;
+      if (!Number.isFinite(c) || !Number.isFinite(v)) continue;
+      if (c < 0 || c > 70) {
+        dbErr.textContent = `Row ${i+1}: concentration must be between 0 and 70%.`;
+        hasError = true;
+        continue;
+      }
+      if (v <= 0) {
+        dbErr.textContent = `Row ${i+1}: volume must be greater than 0.`;
+        hasError = true;
+        continue;
+      }
+      const stockL = v * (c / 70);
+      const rpsL   = v - stockL;
+      totalStock += stockL;
+      totalRps   += rpsL;
+      totalFinal += v;
+      anyValid = true;
+      breakdownHtml += `&bull; ${v} L of ${c}% &rarr; ${fmt(stockL, 3)} L stock + ${fmt(rpsL, 3)} L 1×<br>`;
+    }
+
+    if (!anyValid) {
+      dbEmpty.style.display = 'block';
+      dbResults.style.display = 'none';
+      return;
+    }
+
+    dbEmpty.style.display = 'none';
+    dbResults.style.display = 'block';
+
+    const rows = [
+      ["70% VM-1 stock",  totalStock],
+      ["1\u00d7 m-RPS-2", totalRps],
+    ];
+    for (const [name, L] of rows) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${name}</td><td>${fmt(L, 3)} L &nbsp;(${fmt(L * 1000, 1)} mL)</td>`;
+      dbBody.appendChild(tr);
+    }
+    dbTotal.textContent = `${fmt(totalFinal, 3)} L`;
+    dbBreakdown.innerHTML = breakdownHtml;
+  }
+
+  dbCount.addEventListener('input', buildDbRows);
+  buildDbRows();
 
   /* ══════════════════════════════════
      1× m-RPS-2
@@ -1665,6 +1834,7 @@
   const ccBar    = $("ccBar");
   const ccBg     = $("ccBg");
   const bagRecirc = $("bagRecirc");
+  const bagMedication = $("bagMedication");
   const bagLabelEl = $("bagLabelEl");
 
   function renderBagLabel() {
@@ -1709,11 +1879,15 @@
     bagLabelEl.querySelector('.label-color-bar').style.background = color;
     bagLabelEl.querySelector('.label-color-bg').style.background  = color;
 
-    // Recirculate stamp
-    bagLabelEl.classList.toggle('recirculate', bagRecirc.checked);
+    // Banners (recirculate / medication / both / none)
+    const banners = $("bagBanners");
+    let bhtml = '';
+    if (bagRecirc.checked)     bhtml += '<div class="label-banner recirc">RECIRCULATE</div>';
+    if (bagMedication.checked) bhtml += '<div class="label-banner medication">MEDICATION</div>';
+    banners.innerHTML = bhtml;
   }
 
-  [bagNum, bagType, bagPh, bagRi, bagDate, ccBorder, ccBar, ccBg, bagRecirc].forEach(el => {
+  [bagNum, bagType, bagPh, bagRi, bagDate, ccBorder, ccBar, ccBg, bagRecirc, bagMedication].forEach(el => {
     el.addEventListener('input', renderBagLabel);
     el.addEventListener('change', renderBagLabel);
   });
