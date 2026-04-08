@@ -643,13 +643,111 @@
     }
 
     /* Print */
+    .print-only { display: none; }
+
+    .ri-display {
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ri-display::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--blue);
+      border-radius: 50%;
+    }
+
     @media print {
       .no-print { display: none !important; }
-      body { background: white; }
+      .print-only { display: block !important; }
+      body { background: white; font-family: 'DM Sans', sans-serif; }
       .container { padding: 0; max-width: none; }
       .card { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
       .tab-content { display: none !important; }
       .tab-content.active { display: block !important; }
+
+      .print-header {
+        text-align: center;
+        font-size: 22pt;
+        font-weight: 700;
+        color: #000;
+        padding: 12px 0 8px;
+        margin: 0 0 16px;
+        border-bottom: 3px solid #0038FF;
+        letter-spacing: -0.01em;
+      }
+      .print-header .print-subtitle {
+        display: block;
+        font-size: 13pt;
+        font-weight: 500;
+        color: #555;
+        margin-top: 4px;
+        letter-spacing: 0;
+      }
+      .print-header .print-date {
+        display: block;
+        font-size: 9pt;
+        font-weight: 400;
+        color: #888;
+        margin-top: 6px;
+      }
+
+      .print-measurements {
+        margin-top: 28px;
+        padding: 16px 20px;
+        border: 2px solid #000;
+        border-radius: 6px;
+        page-break-inside: avoid;
+      }
+      .print-measurements h3 {
+        margin: 0 0 14px;
+        font-size: 12pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #000;
+      }
+      .measure-row {
+        display: flex;
+        align-items: baseline;
+        margin-bottom: 14px;
+        font-size: 11pt;
+      }
+      .measure-row:last-child { margin-bottom: 0; }
+      .measure-row label {
+        flex: 0 0 200px;
+        font-weight: 600;
+        color: #000;
+        text-transform: none;
+        letter-spacing: 0;
+        font-size: 11pt;
+        margin: 0;
+        padding: 0;
+      }
+      .measure-line {
+        flex: 1;
+        border-bottom: 1.5px solid #000;
+        height: 20px;
+      }
+
+      .print-ri {
+        background: #f0f4ff;
+        padding: 10px 16px;
+        border-radius: 4px;
+        border: 1.5px solid #0038FF;
+        font-size: 12pt;
+        font-weight: 700;
+        color: #000;
+        margin: 14px 0;
+      }
     }
 
     @media (max-width: 640px) {
@@ -691,6 +789,8 @@
 
     <!-- ════════ TAB 1: CALCULATOR ════════ -->
     <div class="tab-content active" id="tab-calc">
+      <div class="print-header print-only" id="calcPrintHeader">VM-1 from Scratch</div>
+
       <div class="card no-print">
         <div class="card-header">
           <div class="card-icon">
@@ -732,11 +832,23 @@
           <tbody id="tbody"></tbody>
           <tfoot><tr><td>Total Weight</td><td id="total"></td></tr></tfoot>
         </table>
+
+        <div id="calcRiDisplay" class="ri-display" style="display:none;"></div>
+        <div class="print-ri print-only" id="calcRiPrint" style="display:none;"></div>
+
+        <div class="print-measurements print-only">
+          <h3>Measured Values</h3>
+          <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+        </div>
       </div>
     </div>
 
     <!-- ════════ TAB 2: VM-1 DILUTION ════════ -->
     <div class="tab-content" id="tab-dilution">
+      <div class="print-header print-only" id="dilPrintHeader">VM-1 Dilution</div>
+
       <div class="card no-print">
         <div class="card-header">
           <div class="card-icon">
@@ -773,11 +885,23 @@
           <tbody id="dilBody"></tbody>
           <tfoot><tr><td>Final Volume</td><td id="dilTotal"></td></tr></tfoot>
         </table>
+
+        <div id="dilRiDisplay" class="ri-display" style="display:none;"></div>
+        <div class="print-ri print-only" id="dilRiPrint" style="display:none;"></div>
+
+        <div class="print-measurements print-only">
+          <h3>Measured Values</h3>
+          <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+        </div>
       </div>
     </div>
 
     <!-- ════════ TAB 2b: DILUTION BASE CALCULATOR ════════ -->
     <div class="tab-content" id="tab-dilBase">
+      <div class="print-header print-only" id="dbPrintHeader">VM-1 Dilution Base Plan</div>
+
       <div class="card no-print">
         <div class="card-header">
           <div class="card-icon">
@@ -817,11 +941,20 @@
           </table>
           <div class="info-note" style="margin-top:16px;" id="dbBreakdown"></div>
         </div>
+
+        <div class="print-measurements print-only">
+          <h3>Measured Values</h3>
+          <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+        </div>
       </div>
     </div>
 
     <!-- ════════ TAB 3: 1× m-RPS-2 ════════ -->
     <div class="tab-content" id="tab-rps2">
+      <div class="print-header print-only" id="rpsPrintHeader">1× m-RPS-2</div>
+
       <div class="card no-print">
         <div class="card-header">
           <div class="card-icon">
@@ -852,11 +985,20 @@
           <thead><tr><th>Ingredient</th><th>Amount</th></tr></thead>
           <tbody id="rpsBody"></tbody>
         </table>
+
+        <div class="print-measurements print-only">
+          <h3>Measured Values</h3>
+          <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+        </div>
       </div>
     </div>
 
     <!-- ════════ TAB 4: MHP-2 ════════ -->
     <div class="tab-content" id="tab-mhp2">
+      <div class="print-header print-only" id="mhpPrintHeader">MHP-2</div>
+
       <div class="card no-print">
         <div class="card-header">
           <div class="card-icon">
@@ -899,11 +1041,20 @@
             <strong>Osmolality should be between 388 – 403 mOsm.</strong>
           </div>
         </div>
+
+        <div class="print-measurements print-only">
+          <h3>Measured Values</h3>
+          <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+        </div>
       </div>
     </div>
 
     <!-- ════════ TAB 5: STOCK ════════ -->
     <div class="tab-content" id="tab-stock">
+      <div class="print-header print-only" id="stockPrintHeader">Master Shopping List</div>
+
       <div class="card no-print">
         <div class="card-header">
           <div class="card-icon">
@@ -949,11 +1100,20 @@
             </table>
           </div>
         </div>
+
+        <div class="print-measurements print-only">
+          <h3>Measured Values</h3>
+          <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+        </div>
       </div>
     </div>
 
     <!-- ════════ TAB 6: LABELS ════════ -->
     <div class="tab-content" id="tab-label">
+      <div class="print-header print-only" id="lblPrintHeader">Label</div>
+
       <div class="card no-print">
         <div class="card-header">
           <div class="card-icon">
@@ -1044,6 +1204,8 @@
 
     <!-- ════════ TAB 7: BAG LABELS ════════ -->
     <div class="tab-content" id="tab-bagLabel">
+      <div class="print-header print-only" id="bagPrintHeader">Bag Label</div>
+
       <div class="card no-print">
         <div class="card-header">
           <div class="card-icon">
@@ -1197,6 +1359,36 @@
   // VM-1 percentages from the bag screenshot
   const VM1_PERCENTAGES = [2.5, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 75];
 
+  // Expected RI lookup table (linear interpolation between points)
+  const RI_TABLE = [
+    [0, 1.3400], [2.5, 1.3425], [5, 1.3450], [7.5, 1.3476],
+    [10, 1.3501], [15, 1.3570], [20, 1.3624], [25, 1.3678],
+    [30, 1.3732], [40, 1.3858], [50, 1.3979], [60, 1.4099],
+    [65, 1.4140], [70, 1.4200], [75, 1.4260]
+  ];
+
+  function expectedRI(pct) {
+    if (!Number.isFinite(pct)) return null;
+    if (pct <= 0) return 1.3400;
+    if (pct >= 75) return 1.4260;
+    for (let i = 0; i < RI_TABLE.length - 1; i++) {
+      const [x1, y1] = RI_TABLE[i];
+      const [x2, y2] = RI_TABLE[i+1];
+      if (pct >= x1 && pct <= x2) {
+        return y1 + (y2 - y1) * (pct - x1) / (x2 - x1);
+      }
+    }
+    return null;
+  }
+
+  function fmtRI(v) {
+    return v == null ? '\u2014' : v.toFixed(4);
+  }
+
+  function todayStr() {
+    return new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
   // Color map (per screenshot)
   const COLOR_MAP = {
     'mhp':  { name: 'Blue',         color: '#5B9BD5' },
@@ -1314,6 +1506,9 @@
     totalEl.textContent = "";
     summaryEl.style.display = "none";
     summaryEl.innerHTML     = "";
+    $("calcRiDisplay").style.display = "none";
+    $("calcRiPrint").style.display = "none";
+    $("calcPrintHeader").innerHTML = "VM-1 from Scratch";
 
     const s = Number(strengthEl.value);
     const a = Number(amountEl.value);
@@ -1339,6 +1534,18 @@
       tbody.appendChild(tr);
     }
     totalEl.textContent = fmt(total) + " g";
+
+    // Expected RI
+    const ri = expectedRI(s);
+    if (ri != null) {
+      $("calcRiDisplay").style.display = "flex";
+      $("calcRiDisplay").textContent = `Expected RI: ${fmtRI(ri)}`;
+      $("calcRiPrint").style.display = "block";
+      $("calcRiPrint").textContent = `Expected RI: ${fmtRI(ri)}`;
+    }
+
+    // Print header
+    $("calcPrintHeader").innerHTML = `VM-1 from Scratch<span class="print-subtitle">${s}% w/v &mdash; ${a} L</span><span class="print-date">${todayStr()}</span>`;
   }
   strengthEl.addEventListener("input", renderCalc);
   amountEl.addEventListener("input", renderCalc);
@@ -1358,6 +1565,10 @@
   function renderDilution() {
     dilErr.textContent = "";
     dilBody.innerHTML  = "";
+    $("dilRiDisplay").style.display = "none";
+    $("dilRiPrint").style.display = "none";
+    $("dilPrintHeader").innerHTML = "VM-1 Dilution";
+
     const t = Number(dilTarget.value);
     const v = Number(dilVolume.value);
 
@@ -1395,6 +1606,18 @@
       dilBody.appendChild(tr);
     }
     dilTotal.textContent = `${fmt(v, 3)} L (${t}% w/v)`;
+
+    // Expected RI
+    const ri = expectedRI(t);
+    if (ri != null) {
+      $("dilRiDisplay").style.display = "flex";
+      $("dilRiDisplay").textContent = `Expected RI: ${fmtRI(ri)}`;
+      $("dilRiPrint").style.display = "block";
+      $("dilRiPrint").textContent = `Expected RI: ${fmtRI(ri)}`;
+    }
+
+    // Print header
+    $("dilPrintHeader").innerHTML = `VM-1 Dilution<span class="print-subtitle">${t}% w/v &mdash; ${v} L (from 70% stock + 1&times; m-RPS-2)</span><span class="print-date">${todayStr()}</span>`;
   }
   dilTarget.addEventListener("input", renderDilution);
   dilVolume.addEventListener("input", renderDilution);
@@ -1440,6 +1663,7 @@
     dbErr.textContent = '';
     dbBody.innerHTML  = '';
     dbBreakdown.innerHTML = '';
+    $("dbPrintHeader").innerHTML = "VM-1 Dilution Base Plan";
 
     const concs = dbRows.querySelectorAll('input[data-db-conc]');
     const vols  = dbRows.querySelectorAll('input[data-db-vol]');
@@ -1453,8 +1677,8 @@
     let totalRps   = 0;
     let totalFinal = 0;
     let breakdownHtml = '<strong>Breakdown:</strong><br>';
+    let summaryParts = [];
     let anyValid = false;
-    let hasError = false;
 
     for (let i = 0; i < concs.length; i++) {
       const c = Number(concs[i].value);
@@ -1463,21 +1687,21 @@
       if (!Number.isFinite(c) || !Number.isFinite(v)) continue;
       if (c < 0 || c > 70) {
         dbErr.textContent = `Row ${i+1}: concentration must be between 0 and 70%.`;
-        hasError = true;
         continue;
       }
       if (v <= 0) {
         dbErr.textContent = `Row ${i+1}: volume must be greater than 0.`;
-        hasError = true;
         continue;
       }
       const stockL = v * (c / 70);
       const rpsL   = v - stockL;
+      const ri = expectedRI(c);
       totalStock += stockL;
       totalRps   += rpsL;
       totalFinal += v;
       anyValid = true;
-      breakdownHtml += `&bull; ${v} L of ${c}% &rarr; ${fmt(stockL, 3)} L stock + ${fmt(rpsL, 3)} L 1×<br>`;
+      breakdownHtml += `&bull; ${v} L of ${c}% &rarr; ${fmt(stockL, 3)} L stock + ${fmt(rpsL, 3)} L 1&times; &nbsp;<em>(Expected RI: ${fmtRI(ri)})</em><br>`;
+      summaryParts.push(`${v}L@${c}%`);
     }
 
     if (!anyValid) {
@@ -1500,6 +1724,9 @@
     }
     dbTotal.textContent = `${fmt(totalFinal, 3)} L`;
     dbBreakdown.innerHTML = breakdownHtml;
+
+    // Print header
+    $("dbPrintHeader").innerHTML = `VM-1 Dilution Base Plan<span class="print-subtitle">${summaryParts.join(' &middot; ')} &mdash; Total: ${fmt(totalFinal, 3)} L</span><span class="print-date">${todayStr()}</span>`;
   }
 
   dbCount.addEventListener('input', buildDbRows);
@@ -1517,6 +1744,7 @@
   function renderRps() {
     rpsErr.textContent = "";
     rpsBody.innerHTML  = "";
+    $("rpsPrintHeader").innerHTML = "1&times; m-RPS-2";
     const L = Number(rpsVolume.value);
     if (!Number.isFinite(L) || rpsVolume.value === '') {
       rpsEmpty.style.display = "block";
@@ -1543,6 +1771,9 @@
     const tr = document.createElement("tr");
     tr.innerHTML = `<td>Water (q.s. to ${fmt(L * 1000, 0)} mL)</td><td>~${fmt(waterMl, 1)} mL</td>`;
     rpsBody.appendChild(tr);
+
+    // Print header
+    $("rpsPrintHeader").innerHTML = `1&times; m-RPS-2<span class="print-subtitle">${L} L</span><span class="print-date">${todayStr()}</span>`;
   }
   rpsVolume.addEventListener("input", renderRps);
   renderRps();
@@ -1561,6 +1792,7 @@
     mhpErr.textContent = "";
     mhpBody.innerHTML  = "";
     mhpBaseBody.innerHTML = "";
+    $("mhpPrintHeader").innerHTML = "MHP-2";
     const n = Number(mhpBags.value);
     if (!Number.isFinite(n) || mhpBags.value === '') {
       mhpEmpty.style.display = "block";
@@ -1588,6 +1820,11 @@
       tr.innerHTML = `<td>${name}</td><td>${fmt(val * factor, 0)} ${unit}</td>`;
       mhpBaseBody.appendChild(tr);
     }
+
+    // Print header
+    const totalL = n * 7;
+    const bagWord = n === 1 ? 'bag' : 'bags';
+    $("mhpPrintHeader").innerHTML = `MHP-2<span class="print-subtitle">${n} ${bagWord} &mdash; ${totalL} L total</span><span class="print-date">${todayStr()}</span>`;
   }
   mhpBags.addEventListener("input", renderMhp);
   renderMhp();
@@ -1639,9 +1876,11 @@
     stockMhpBody.innerHTML = "";
     stockMhpBaseBody.innerHTML = "";
     stockVmBody.innerHTML = "";
+    $("stockPrintHeader").innerHTML = "Master Shopping List";
 
     let mhpBagsCount = 0;
     const vmTotals = {}; // ingredient name → total grams
+    const summaryParts = [];
 
     const checks = stockGrid.querySelectorAll('input[type="checkbox"]');
     checks.forEach(cb => {
@@ -1653,6 +1892,7 @@
 
       if (k === 'mhp') {
         mhpBagsCount += n;
+        summaryParts.push(`${n}× MHP-2`);
       } else {
         const pct = Number(k);
         const liters = n * 7;
@@ -1660,6 +1900,7 @@
         for (const [name, grams] of items) {
           vmTotals[name] = (vmTotals[name] || 0) + grams;
         }
+        summaryParts.push(`${n}× ${pct}%`);
       }
     });
 
@@ -1694,7 +1935,6 @@
 
     if (hasVm) {
       stockVmSection.style.display = "block";
-      // preserve canonical order
       const order = ["DMSO", "Ethylene Glycol", "H\u2082O (Water)", "Glucose", "Tris Base", "KCl", "MgCl\u2082"];
       for (const name of order) {
         if (vmTotals[name] !== undefined) {
@@ -1706,6 +1946,9 @@
     } else {
       stockVmSection.style.display = "none";
     }
+
+    // Print header
+    $("stockPrintHeader").innerHTML = `Master Shopping List<span class="print-subtitle">${summaryParts.join(' &middot; ')}</span><span class="print-date">${todayStr()}</span>`;
   }
   renderStock();
 
@@ -1792,6 +2035,16 @@
       html += `<div class="ing-row"><span>Water</span><span>${fmt(waterPerL / 10, 3)} g</span></div>`;
     }
     $("lblIngredients").innerHTML = html;
+
+    // Print header
+    let headerLabel;
+    if (type === 'mhp') {
+      headerLabel = `Label &mdash; MHP-2`;
+    } else {
+      const s = Number(lblConc.value) || 0;
+      headerLabel = `Label &mdash; VM-1 ${s}% w/v`;
+    }
+    $("lblPrintHeader").innerHTML = `${headerLabel}<span class="print-date">${todayStr()}</span>`;
   }
 
   lblType.addEventListener("change", renderLabel);
@@ -1885,6 +2138,14 @@
     if (bagRecirc.checked)     bhtml += '<div class="label-banner recirc">RECIRCULATE</div>';
     if (bagMedication.checked) bhtml += '<div class="label-banner medication">MEDICATION</div>';
     banners.innerHTML = bhtml;
+
+    // Print header
+    const num = bagNum.value || '\u2014';
+    const flags = [];
+    if (bagRecirc.checked) flags.push('RECIRCULATE');
+    if (bagMedication.checked) flags.push('MEDICATION');
+    const flagText = flags.length ? ` &mdash; ${flags.join(' + ')}` : '';
+    $("bagPrintHeader").innerHTML = `Bag ${num} &mdash; ${strengthLabel}${flagText}<span class="print-date">${todayStr()}</span>`;
   }
 
   [bagNum, bagType, bagPh, bagRi, bagDate, ccBorder, ccBar, ccBg, bagRecirc, bagMedication].forEach(el => {
