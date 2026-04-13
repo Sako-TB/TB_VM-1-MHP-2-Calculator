@@ -582,6 +582,13 @@
       margin-bottom: -2px;
     }
 
+    .label-bag-num .bag-strength {
+      font-size: 30pt;
+      font-weight: 800;
+      color: #333;
+      letter-spacing: -0.01em;
+    }
+
     /* Color coding overlays */
     .label.color-border {
       border-width: 6px;
@@ -608,10 +615,66 @@
       bottom: 0;
       z-index: 0;
       display: none;
-      opacity: 0.18;
+      opacity: 1;
     }
 
     .label.color-bg .label-color-bg { display: block; }
+
+    /* When background color is on, disable the top color bar (it would be invisible anyway) */
+    .label.color-bg.color-bar .label-color-bar { display: none; }
+    .label.color-bg.color-bar { padding-top: 0.16in; }
+
+    /* Contrast-aware text when solid background is on */
+    .label.color-bg.text-dark .label-bag-num,
+    .label.color-bg.text-dark .label-bag-num .bag-prefix,
+    .label.color-bg.text-dark .label-bag-num .bag-strength,
+    .label.color-bg.text-dark .label-meta .lm-val,
+    .label.color-bg.text-dark .label-content-title,
+    .label.color-bg.text-dark .label-ingredients,
+    .label.color-bg.text-dark .label-company,
+    .label.color-bg.text-dark .label-title {
+      color: #000 !important;
+    }
+    .label.color-bg.text-dark .label-meta .lm-key,
+    .label.color-bg.text-dark .label-footer,
+    .label.color-bg.text-dark .label-footer .made-in {
+      color: rgba(0,0,0,0.7) !important;
+    }
+    .label.color-bg.text-dark .label-meta {
+      border-top-color: rgba(0,0,0,0.3) !important;
+      border-bottom-color: rgba(0,0,0,0.3) !important;
+    }
+    .label.color-bg.text-dark .label-footer { border-top-color: rgba(0,0,0,0.3) !important; }
+    .label.color-bg.text-dark .label-title { border-bottom-color: rgba(0,0,0,0.3) !important; }
+
+    .label.color-bg.text-light .label-bag-num,
+    .label.color-bg.text-light .label-bag-num .bag-prefix,
+    .label.color-bg.text-light .label-bag-num .bag-strength,
+    .label.color-bg.text-light .label-meta .lm-val,
+    .label.color-bg.text-light .label-content-title,
+    .label.color-bg.text-light .label-ingredients,
+    .label.color-bg.text-light .label-company,
+    .label.color-bg.text-light .label-title {
+      color: #fff !important;
+    }
+    .label.color-bg.text-light .label-meta .lm-key,
+    .label.color-bg.text-light .label-footer,
+    .label.color-bg.text-light .label-footer .made-in {
+      color: rgba(255,255,255,0.85) !important;
+    }
+    .label.color-bg.text-light .label-meta {
+      border-top-color: rgba(255,255,255,0.4) !important;
+      border-bottom-color: rgba(255,255,255,0.4) !important;
+    }
+    .label.color-bg.text-light .label-footer { border-top-color: rgba(255,255,255,0.4) !important; }
+    .label.color-bg.text-light .label-title { border-bottom-color: rgba(255,255,255,0.4) !important; }
+    .label.color-bg.text-light .label-footer .research {
+      color: #fff !important;
+      background: rgba(192,0,0,0.9);
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 3px;
+    }
 
     /* Banners (recirculate / medication) */
     .label-banners {
@@ -1314,16 +1377,16 @@
 
             <div class="label-bag-num" id="bagNumDisplay">
               <span class="bag-prefix">BAG</span>
-              <span id="bagNumValue">&mdash;</span>
+              <span id="bagNumValue">&mdash;</span><span class="bag-strength" id="bagStrengthInline">&nbsp;(70% w/v)</span>
             </div>
 
             <div class="label-meta">
-              <div><span class="lm-key">Strength</span><span class="lm-val" id="bagStrengthDisplay">70% w/v</span></div>
               <div><span class="lm-key">Volume</span><span class="lm-val">7 L</span></div>
               <div><span class="lm-key">pH</span><span class="lm-val" id="bagPhDisplay">&mdash;</span></div>
-              <div><span class="lm-key">RI</span><span class="lm-val" id="bagRiDisplay">&mdash;</span></div>
               <div><span class="lm-key">Production</span><span class="lm-val" id="bagProdDisplay">&mdash;</span></div>
+              <div><span class="lm-key">RI</span><span class="lm-val" id="bagRiDisplay">&mdash;</span></div>
               <div><span class="lm-key">Expiration</span><span class="lm-val" id="bagExpDisplay">&mdash;</span></div>
+              <div><span class="lm-key">Type</span><span class="lm-val" id="bagTypeDisplay">VM-1</span></div>
             </div>
 
             <div class="label-spacer"></div>
@@ -1331,7 +1394,6 @@
             <div class="label-banners" id="bagBanners"></div>
 
             <div class="label-footer">
-              <div class="address">Tomorrow Biostasis GmbH &middot; Graefestrasse 11, 10967 Berlin, Germany</div>
               <div class="research">For Research Use Only</div>
               <div class="made-in">Made in Germany</div>
             </div>
@@ -2090,6 +2152,17 @@
   const bagMedication = $("bagMedication");
   const bagLabelEl = $("bagLabelEl");
 
+  // Compute brightness of a hex color — returns true if it's "light" (needs dark text)
+  function isLightColor(hex) {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0,2), 16);
+    const g = parseInt(h.substring(2,4), 16);
+    const b = parseInt(h.substring(4,6), 16);
+    // Perceived luminance (ITU-R BT.709)
+    const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    return lum > 0.55;
+  }
+
   function renderBagLabel() {
     const key = bagType.value;
     const colorInfo = COLOR_MAP[key];
@@ -2098,9 +2171,12 @@
     // Bag number
     $("bagNumValue").textContent = bagNum.value || "\u2014";
 
-    // Strength row
+    // Strength inline next to bag number
     const strengthLabel = (key === 'mhp') ? 'MHP-2' : (key + '% w/v');
-    $("bagStrengthDisplay").textContent = strengthLabel;
+    $("bagStrengthInline").innerHTML = `&nbsp;(${strengthLabel})`;
+
+    // Type field in meta
+    $("bagTypeDisplay").textContent = (key === 'mhp') ? 'MHP-2' : 'VM-1';
 
     // pH, RI
     $("bagPhDisplay").textContent = bagPh.value || "\u2014";
@@ -2131,6 +2207,16 @@
     }
     bagLabelEl.querySelector('.label-color-bar').style.background = color;
     bagLabelEl.querySelector('.label-color-bg').style.background  = color;
+
+    // Contrast-aware text: pick black text on light bg, white text on dark bg
+    bagLabelEl.classList.remove('text-light', 'text-dark');
+    if (ccBg.checked) {
+      if (isLightColor(color)) {
+        bagLabelEl.classList.add('text-dark');
+      } else {
+        bagLabelEl.classList.add('text-light');
+      }
+    }
 
     // Banners (recirculate / medication / both / none)
     const banners = $("bagBanners");
