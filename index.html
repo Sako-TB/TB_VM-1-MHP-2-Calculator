@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,900&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <style>
     :root {
@@ -705,6 +706,67 @@
       border: 2px solid #c00;
     }
 
+
+    /* ── Fixative tab ── */
+    #fixTable td:last-child { text-align: left; color: var(--gray-500); font-size: 13px; font-weight: 400; }
+    #fixTable td:nth-child(2) { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; color: var(--gray-700); white-space: nowrap; }
+    #fixTable th:last-child { text-align: left; }
+    #fixTable th:nth-child(2) { text-align: right; }
+    .prep-steps { margin: 8px 0 0; padding-left: 22px; }
+    .prep-steps li { font-size: 14px; color: var(--gray-700); margin-bottom: 10px; }
+    .handling-notes { margin: 8px 0 0; padding-left: 22px; }
+    .handling-notes li { font-size: 13.5px; color: var(--gray-600); margin-bottom: 8px; }
+
+    /* ── Full Set table ── */
+    #fullSetTable td { font-size: 12.5px; padding: 9px 10px; }
+    #fullSetTable th { font-size: 10.5px; padding: 10px; }
+    #fullSetTable td:last-child, #fullSetTable th:last-child { text-align: left; }
+    #fullSetTable input[type="checkbox"] { width: 16px; height: 16px; }
+    .fs-swatch-cell { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+
+    /* ── Label comment (bag labels) ── */
+    .label-comment {
+      font-size: 6.3pt; font-style: italic; text-align: center;
+      color: #333; margin: 2px 0; position: relative; z-index: 2;
+    }
+    .label.color-bg.text-light .label-comment { color: #fff !important; }
+    .label.color-bg.text-dark .label-comment { color: #000 !important; }
+
+    /* ── Regulatory labels ── */
+    .reg-label {
+      background: #fff; border: 1.6px solid #000; color: #111;
+      font-family: 'DM Sans', system-ui, sans-serif; display: flex; flex-direction: column;
+      box-sizing: border-box; padding: 4mm; line-height: 1.35; overflow: hidden;
+    }
+    .reg-title { font-weight: 700; }
+    .reg-contains { font-weight: 600; }
+    .ghs-row { display: flex; gap: 2mm; align-items: center; margin: 1.5mm 0; }
+    .reg-signal { font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
+    .reg-h { font-weight: 700; }
+    .reg-p { color: #111; }
+    .reg-supplier { margin-top: auto; border-top: 1px solid #000; padding-top: 1.5mm; }
+    .transport-addr-row { display: flex; gap: 4mm; margin-bottom: 3mm; }
+    .t-addr { flex: 1; border: 1px solid #000; padding: 2mm; white-space: pre-wrap; min-height: 28mm; font-size: 9pt; }
+    .t-addr h4 { margin: 0 0 1mm; font-size: 7pt; text-transform: uppercase; letter-spacing: 0.08em; color: #555; font-weight: 700; }
+    .up-arrows { font-size: 22pt; text-align: center; line-height: 1; letter-spacing: 8px; }
+    .reg-id-big { font-size: 26pt; font-weight: 900; text-align: center; }
+    .reg-id-strength { font-size: 15pt; font-weight: 700; text-align: center; }
+    .reg-blank-line { display: flex; align-items: baseline; gap: 3mm; margin-top: 2.5mm; font-size: 9pt; }
+    .reg-blank-line .rb-line { flex: 1; border-bottom: 1px solid #000; height: 12px; }
+
+    /* ── SDS ── */
+    .sds h2 { font-size: 15px; font-weight: 700; color: var(--gray-900); margin: 24px 0 8px; border-bottom: 2px solid var(--blue-light); padding-bottom: 4px; }
+    .sds h2:first-of-type { margin-top: 4px; }
+    .sds h3 { font-size: 13px; font-weight: 700; color: var(--gray-700); margin: 14px 0 4px; }
+    .sds p, .sds li { font-size: 13.5px; color: var(--gray-700); margin: 6px 0; }
+    .sds ul { padding-left: 20px; }
+    .sds table { margin: 8px 0 14px; }
+    .sds td, .sds th { padding: 8px 10px; font-size: 12.5px; vertical-align: top; }
+    .sds td { border-bottom: 1px solid var(--gray-100); }
+    .sds td:last-child { text-align: left; font-weight: 400; color: var(--gray-700); }
+    .sds td:first-child { font-weight: 600; color: var(--gray-700); width: 230px; }
+    .sds .sds-note { font-size: 12px; color: var(--gray-500); font-style: italic; }
+
     /* Print */
     .print-only { display: none; }
 
@@ -821,6 +883,12 @@
       h1 { font-size: 24px; }
       .container { padding: 20px 16px 48px; }
     }
+
+    @media print {
+      #tab-sds .card, #tab-fixative .card, #tab-fullset .card, #tab-regulatory .card { page-break-inside: auto; }
+      .sds h2 { page-break-after: avoid; }
+      #fullSetTable tr { page-break-inside: avoid; }
+    }
   </style>
 </head>
 
@@ -845,9 +913,13 @@
       <button class="tab-btn" data-tab="dilBase">Dilution Base</button>
       <button class="tab-btn" data-tab="rps2">1× m-RPS-2</button>
       <button class="tab-btn" data-tab="mhp2">MHP-2</button>
+      <button class="tab-btn" data-tab="fixative">VM-1 Fixative</button>
       <button class="tab-btn" data-tab="stock">Stock</button>
       <button class="tab-btn" data-tab="label">Labels</button>
       <button class="tab-btn" data-tab="bagLabel">Bag Labels</button>
+      <button class="tab-btn" data-tab="fullset">Full Set</button>
+      <button class="tab-btn" data-tab="regulatory">Regulatory Labels</button>
+      <button class="tab-btn" data-tab="sds">SDS</button>
     </div>
 
     <!-- ════════ TAB 1: CALCULATOR ════════ -->
@@ -874,6 +946,7 @@
         </div>
 
         <div id="err" class="error"></div>
+        <div class="checkbox-row" style="margin-top:12px;"><input type="checkbox" id="calcFullSet"><label for="calcFullSet"><strong>Full set</strong> &mdash; show the two from-scratch recipes the full set requires (70% &times; 87.25 L + 75% &times; 7 L)</label></div>
       </div>
 
       <div class="card" id="resultsCard">
@@ -897,6 +970,7 @@
         </table>
 
         <div id="calcRiDisplay" class="ri-display" style="display:none;"></div>
+        <div id="calcFullSetResults" style="display:none;"></div>
         <div class="print-ri print-only" id="calcRiPrint" style="display:none;"></div>
 
         <div class="print-measurements print-only">
@@ -904,6 +978,9 @@
           <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Operator:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Date:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Batch ID:</label><div class="measure-line"></div></div>
         </div>
       </div>
     </div>
@@ -957,6 +1034,9 @@
           <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Operator:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Date:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Batch ID:</label><div class="measure-line"></div></div>
         </div>
       </div>
     </div>
@@ -982,6 +1062,8 @@
           </div>
         </div>
 
+        <div class="checkbox-row" style="margin-bottom:12px;"><input type="checkbox" id="dbFullSet"><label for="dbFullSet"><strong>Full set</strong> &mdash; fill all dilutions for the 27-bag set (2.5&ndash;70%)</label></div>
+        <div id="dbFsNote" class="info-note" style="display:none; margin-bottom:12px;">Full set: 75% (7 L) is made from scratch &mdash; see Calculator tab. MHP-2 is excluded &mdash; see MHP-2 tab.</div>
         <div id="dbRows"></div>
         <div id="dbErr" class="error"></div>
       </div>
@@ -1010,6 +1092,9 @@
           <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Operator:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Date:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Batch ID:</label><div class="measure-line"></div></div>
         </div>
       </div>
     </div>
@@ -1033,6 +1118,7 @@
           </div>
         </div>
         <div id="rpsErr" class="error"></div>
+        <div class="checkbox-row" style="margin-top:12px;"><input type="checkbox" id="rpsFullSet"><label for="rpsFullSet"><strong>Full set</strong> &mdash; 73.75 L (the 1&times; needed to dilute the full 27-bag set)</label></div>
       </div>
 
       <div class="card">
@@ -1054,6 +1140,9 @@
           <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Operator:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Date:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Batch ID:</label><div class="measure-line"></div></div>
         </div>
       </div>
     </div>
@@ -1077,6 +1166,7 @@
           </div>
         </div>
         <div id="mhpErr" class="error"></div>
+        <div class="checkbox-row" style="margin-top:12px;"><input type="checkbox" id="mhpFullSet"><label for="mhpFullSet"><strong>Full set</strong> &mdash; 3 bags of MHP-2</label></div>
       </div>
 
       <div class="card">
@@ -1110,6 +1200,80 @@
           <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Operator:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Date:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Batch ID:</label><div class="measure-line"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 4b: VM-1 FIXATIVE ════════ -->
+    <div class="tab-content" id="tab-fixative">
+      <div class="print-header print-only" id="fixPrintHeader">VM-1 with Fixatives</div>
+
+      <div class="card no-print">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+          </div>
+          <span class="card-title">VM-1 with Fixatives (HEPES/NaCl carrier)</span>
+        </div>
+
+        <div class="row-3">
+          <div>
+            <label for="fixConc">Concentration (% w/v)</label>
+            <input id="fixConc" type="number" inputmode="decimal" min="0" max="75" step="0.1" placeholder="e.g. 5" />
+          </div>
+          <div>
+            <label for="fixVol">Volume (Liters)</label>
+            <input id="fixVol" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 10" />
+          </div>
+          <div>
+            <label for="fixPct">Total Fixative (%)</label>
+            <input id="fixPct" type="number" inputmode="decimal" min="0" max="20" step="0.1" value="4" />
+          </div>
+        </div>
+        <div id="fixErr" class="error"></div>
+        <div class="info-note">Carrier is HEPES/NaCl — Tris and glucose are excluded because Tris reacts with aldehydes; KCl is excluded, pH is balanced with NaOH/HCl instead. DMSO and EG must be weighed by mass (volumes are reference only). Lab-validated reference points: 2.5% w/v / 5 L and 5% w/v / 10 L (both at 4% total fixative); other combinations are linear calculations from these points and have not yet been prepared in the lab.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <span class="card-title">Ingredient Quantities</span>
+        </div>
+
+        <div id="fixEmpty" class="empty-state"><div>Enter concentration and volume above</div></div>
+
+        <div id="fixResults" style="display:none;">
+          <div id="fixSummary" class="summary"></div>
+          <table id="fixTable">
+            <thead><tr><th>Ingredient</th><th>Amount</th><th>Role / Notes</th></tr></thead>
+            <tbody id="fixBody"></tbody>
+          </table>
+
+          <div class="section-header" style="margin-top:24px;">Preparation</div>
+          <ol class="prep-steps" id="fixSteps"></ol>
+
+          <div class="section-header" style="margin-top:24px;">Handling Notes</div>
+          <ul class="handling-notes">
+            <li>Glutaraldehyde and formaldehyde are toxic and sensitising — work in a fume hood, wear nitrile gloves, lab coat, and eye protection.</li>
+            <li>DMSO is a skin penetrant and will carry contaminants through gloves — change gloves if contaminated.</li>
+            <li>DMSO density is temperature-sensitive; if measuring DMSO/EG by volume instead of mass, use the density at your actual lab temperature (values here are at 25&nbsp;&deg;C).</li>
+            <li>This HEPES/NaCl carrier is not m-RPS-2; the constant-carrier-ion logic of the standard VM-1 tabs does not apply to this variant.</li>
+          </ul>
+        </div>
+
+        <div class="print-measurements print-only">
+          <h3>Measured Values</h3>
+          <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Operator:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Date:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Batch ID:</label><div class="measure-line"></div></div>
         </div>
       </div>
     </div>
@@ -1128,6 +1292,7 @@
 
         <p style="color:var(--gray-500); font-size:14px; margin:0 0 16px;">Tick what you want to make and enter how many bags. The shopping list sums everything below.</p>
 
+        <div class="checkbox-row" style="margin-bottom:14px;"><input type="checkbox" id="stockFullSet"><label for="stockFullSet"><strong>Full set</strong> &mdash; fill all 27 bags (3&times; MHP-2 + 24&times; VM-1)</label></div>
         <div class="stock-grid" id="stockGrid">
           <!-- populated by JS -->
         </div>
@@ -1169,6 +1334,9 @@
           <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured pH:</label><div class="measure-line"></div></div>
           <div class="measure-row"><label>Measured Osmolality:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Operator:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Date:</label><div class="measure-line"></div></div>
+          <div class="measure-row"><label>Batch ID:</label><div class="measure-line"></div></div>
         </div>
       </div>
     </div>
@@ -1343,6 +1511,21 @@
           </div>
         </div>
 
+        <div style="margin-top:20px; padding-top:20px; border-top: 1px solid var(--gray-100);">
+          <label style="margin-bottom:12px;">Full Set (all 27 bags as ZIP)</label>
+          <div style="display:flex; flex-wrap:wrap; gap:20px;">
+            <div class="checkbox-row"><input type="checkbox" id="fsStorage"><label for="fsStorage">Include storage temperature</label></div>
+            <div class="checkbox-row"><input type="checkbox" id="fsComments"><label for="fsComments">Include comments</label></div>
+          </div>
+          <div class="toolbar" style="border-top:none; padding-top:8px; margin-top:4px;">
+            <button id="genFullSetBtn" class="btn-primary" type="button">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+              Generate Full Set (ZIP, 27 labels)
+            </button>
+            <span id="fsStatus" class="status"></span>
+          </div>
+        </div>
+
         <div class="toolbar">
           <button id="downloadBagBtn" class="btn-primary" type="button">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
@@ -1387,10 +1570,12 @@
               <div><span class="lm-key">RI</span><span class="lm-val" id="bagRiDisplay">&mdash;</span></div>
               <div><span class="lm-key">Expiration</span><span class="lm-val" id="bagExpDisplay">&mdash;</span></div>
               <div><span class="lm-key">Type</span><span class="lm-val" id="bagTypeDisplay">VM-1</span></div>
+              <div id="bagStorageWrap" style="display:none;"><span class="lm-key">Storage</span><span class="lm-val" id="bagStorageVal">&mdash;</span></div>
             </div>
 
             <div class="label-spacer"></div>
 
+            <div class="label-comment" id="bagCommentLine" style="display:none;"></div>
             <div class="label-banners" id="bagBanners"></div>
 
             <div class="label-footer">
@@ -1399,6 +1584,291 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 8: FULL SET ════════ -->
+    <div class="tab-content" id="tab-fullset">
+      <div class="print-header print-only" id="fullsetPrintHeader">VM-1 Full Set</div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          </div>
+          <span class="card-title">Full Set — 27 Bags <span style="font-weight:400;color:var(--gray-400);font-size:13px;">(tick off as prepared)</span></span>
+        </div>
+        <table id="fullSetTable">
+          <thead><tr><th>&#10003;</th><th>Bag No.</th><th>Concentration</th><th>Label Colour</th><th>Recirculate?</th><th>RI</th><th>Storage</th><th>Comment</th></tr></thead>
+          <tbody id="fullSetBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 9: REGULATORY LABELS ════════ -->
+    <div class="tab-content" id="tab-regulatory">
+      <div class="print-header print-only" id="regPrintHeader">Regulatory Label</div>
+
+      <div class="card no-print">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+          <span class="card-title">Regulatory Label Parameters</span>
+        </div>
+
+        <div class="row-4">
+          <div>
+            <label for="regType">Label Type</label>
+            <select id="regType">
+              <option value="clp">CLP Product Label (full strength)</option>
+              <option value="dilution">Dilution Hazard Label</option>
+              <option value="transport">Transport Label</option>
+              <option value="waste">Waste Label</option>
+              <option value="sign">Storage Area Sign (GHS)</option>
+            </select>
+          </div>
+          <div>
+            <label for="regLang">Language</label>
+            <select id="regLang">
+              <option value="de">Deutsch</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div id="regSizeWrap">
+            <label for="regSize">Container Size</label>
+            <select id="regSize">
+              <option value="s1">&le; 3 L (52&times;74 mm)</option>
+              <option value="s2" selected>3&ndash;50 L (74&times;105 mm)</option>
+              <option value="s3">50&ndash;500 L (105&times;148 mm)</option>
+              <option value="s4">&gt; 500 L (148&times;210 mm)</option>
+            </select>
+          </div>
+          <div id="regConcWrap" style="display:none;">
+            <label for="regConc">Concentration</label>
+            <select id="regConc"></select>
+          </div>
+        </div>
+
+        <div id="regTransportFields" style="display:none; margin-top:16px;">
+          <div class="row">
+            <div>
+              <label for="regFrom">From / Absender</label>
+              <textarea id="regFrom" rows="4" style="width:100%; padding:12px 14px; font-family:inherit; font-size:14px; border-radius:var(--radius-sm); border:2px solid var(--gray-200); background:var(--gray-50);">Tomorrow Biostasis GmbH
+Graefestra&szlig;e 11
+10967 Berlin
+Germany</textarea>
+            </div>
+            <div>
+              <label for="regTo">To / Empf&auml;nger</label>
+              <textarea id="regTo" rows="4" placeholder="Recipient address&hellip;" style="width:100%; padding:12px 14px; font-family:inherit; font-size:14px; border-radius:var(--radius-sm); border:2px solid var(--gray-200); background:var(--gray-50);"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div id="regTierNote" class="info-note" style="display:none;"></div>
+
+        <div class="toolbar">
+          <button id="regDownloadBtn" class="btn-primary" type="button">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/></svg>
+            Download Label (PNG)
+          </button>
+          <span id="regStatus" class="status"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </div>
+          <span class="card-title">Label Preview <span id="regDims" style="font-weight:400;color:var(--gray-400);font-size:13px;"></span></span>
+        </div>
+        <div class="label-preview-wrapper" style="overflow:auto;">
+          <div id="regPreview"></div>
+        </div>
+        <div class="info-note no-print" style="margin-top:8px;">Pictogram artwork here is a faithful internal recreation. For labels formally supplied to third parties, verify against official CLP Annex&nbsp;V artwork.</div>
+      </div>
+    </div>
+
+    <!-- ════════ TAB 10: SDS ════════ -->
+    <div class="tab-content" id="tab-sds">
+      <div class="print-header print-only">Safety Data Sheet &mdash; VM-1 Embalming Solution<span class="print-subtitle">Version 2.0 &mdash; Revision date 16 August 2026 &mdash; acc. to Reg. (EC) No 1907/2006 (REACH), Annex II, and Reg. (EC) No 1272/2008 (CLP)</span></div>
+      <div class="card sds">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <span class="card-title">Safety Data Sheet &mdash; VM-1 Embalming Solution <span style="font-weight:400;color:var(--gray-400);font-size:13px;">Version 2.0 &middot; 16 Aug 2026</span></span>
+        </div>
+        <div class="info-note no-print">Rendered copy of SDS v2.0 (supersedes v1 of 06/09/2024; first issue 06/09/2024). The PDF remains the authoritative document; update this tab whenever the SDS is revised.</div>
+
+        <h2>SECTION 1: Identification of the substance/mixture and of the company/undertaking</h2>
+        <table>
+          <tr><td>1.1 Product identifier</td><td><strong>VM-1 Embalming Solution</strong> &mdash; aqueous mixture (liquid)</td></tr>
+          <tr><td>1.2 Identified uses</td><td>Embalming solution; cryoprotective perfusion solution. Professional use only.<br><em>Uses advised against:</em> consumer use. Not for food, feed, cosmetic, pharmaceutical or veterinary use.</td></tr>
+          <tr><td>1.3 Supplier</td><td>Tomorrow Biostasis GmbH, Graefestra&szlig;e 11, 10967 Berlin, Germany<br>Tel. +49 151 59209203 &middot; E-mail (competent person): sako@tomorrow.bio</td></tr>
+          <tr><td>1.4 Emergency telephone</td><td>Company (business hours): +49 151 59209203<br>Poison centre DE &mdash; Giftnotruf Berlin: +49 30 19240 (24 h)<br>Poison centre CH &mdash; Tox Info Suisse: 145 (within CH) / +41 44 251 51 51 (24 h)</td></tr>
+        </table>
+
+        <h2>SECTION 2: Hazards identification</h2>
+        <h3>2.1 Classification (Regulation (EC) No 1272/2008, CLP)</h3>
+        <table>
+          <tr><td>Acute toxicity, oral, Cat. 4</td><td>H302 &mdash; Harmful if swallowed.</td></tr>
+          <tr><td>STOT RE, Cat. 2 (kidneys, oral)</td><td>H373 &mdash; May cause damage to organs (kidneys) through prolonged or repeated exposure.</td></tr>
+        </table>
+        <p>The mixture is not classified for flammability (flash point &gt; 93&nbsp;&deg;C; see Sections 5 and 9). Classification is driven by the ethylene glycol content (harmonised classification, Annex VI to CLP, Index No 603-027-00-1).</p>
+        <h3>2.2 Label elements</h3>
+        <div class="picto-inline" id="sdsPictos"></div>
+        <p><strong>Signal word:</strong> Warning &mdash; Pictograms: GHS07 (exclamation mark), GHS08 (health hazard). Official pictogram artwork per CLP Annex V must be used on labels.</p>
+        <p><strong>Hazard statements:</strong> H302 Harmful if swallowed. H373 May cause damage to organs (kidneys) through prolonged or repeated exposure.</p>
+        <p><strong>Precautionary statements:</strong> P260 Do not breathe mist/vapours/spray. P264 Wash hands thoroughly after handling. P270 Do not eat, drink or smoke when using this product. P280 Wear protective gloves/protective clothing/eye protection/face protection. P301+P312 IF SWALLOWED: Call a POISON CENTER/doctor if you feel unwell. P314 Get medical advice/attention if you feel unwell. P330 Rinse mouth. P403+P235 Store in a well-ventilated place. Keep cool. P501 Dispose of contents/container to an approved hazardous-waste collection point in accordance with local, regional and national regulations.</p>
+        <h3>2.3 Other hazards</h3>
+        <p>The mixture does not contain PBT or vPvB substances. No endocrine-disrupting properties are known for the components. Dimethyl sulfoxide (DMSO) readily penetrates intact skin and can carry dissolved substances through the skin; avoid all skin contact, in particular with used/contaminated solution. Spilled product is slippery.</p>
+
+        <h2>SECTION 3: Composition / information on ingredients (3.2 Mixtures)</h2>
+        <table>
+          <thead><tr><th>Component</th><th>CAS / EC</th><th>Conc. (w/w)</th><th>Classification (CLP)</th></tr></thead>
+          <tbody>
+            <tr><td>Dimethyl sulfoxide (DMSO)</td><td>67-68-5 / 200-664-3</td><td>&le; 31.8 %</td><td>Not classified</td></tr>
+            <tr><td>Ethylene glycol</td><td>107-21-1 / 203-473-3 &middot; Index 603-027-00-1</td><td>&le; 31.4 %</td><td>Acute Tox. 4 (oral), H302; STOT RE 2, H373 (kidneys)</td></tr>
+            <tr><td>D-Glucose</td><td>50-99-7 / 200-075-1</td><td>&le; 4.1 %</td><td>Not classified</td></tr>
+            <tr><td>Potassium chloride</td><td>7447-40-7 / 231-211-8</td><td>&le; 0.25 %</td><td>Not classified</td></tr>
+            <tr><td>Magnesium chloride &sup1;</td><td>7786-30-3 / 232-094-6</td><td>&le; 0.25 %</td><td>Not classified</td></tr>
+            <tr><td>Tromethamine (THAM / Tris)</td><td>77-86-1 / 201-064-4</td><td>&le; 0.15 %</td><td>Not classified</td></tr>
+            <tr><td>Water</td><td>7732-18-5 / 231-791-2</td><td>balance (&asymp; 32 %)</td><td>Not classified</td></tr>
+          </tbody>
+        </table>
+        <p class="sds-note">&sup1; If magnesium chloride hexahydrate (CAS 7791-18-6) is used in manufacture, the dissolved species is identical. The component previously listed as "9X m-RPS-2 (trade secret)" has been replaced by full disclosure of its constituents (D-glucose, potassium chloride, magnesium chloride, tromethamine, water). Concentrations refer to the full-strength solution; the physiological carrier salts are present at 1&times; m-RPS-2 concentration (&asymp; 46.5 g per litre of final solution). Full text of H-statements: see Section 16.</p>
+
+        <h2>SECTION 4: First-aid measures</h2>
+        <table>
+          <tr><td>General advice</td><td>Consult a physician and show this safety data sheet. Move affected person out of the danger area.</td></tr>
+          <tr><td>If inhaled</td><td>Move to fresh air. Call a poison centre or doctor if you feel unwell.</td></tr>
+          <tr><td>Skin contact</td><td>Remove contaminated clothing. Wash off immediately with soap and plenty of water. Get medical attention if symptoms occur. Note: DMSO promotes absorption of substances through the skin.</td></tr>
+          <tr><td>Eye contact</td><td>Rinse thoroughly with plenty of water for at least 15 minutes, holding eyelids open. Continue rinsing during transport and consult a physician.</td></tr>
+          <tr><td>If swallowed</td><td>Rinse mouth. Do NOT induce vomiting unless directed by medical personnel. If vomiting occurs naturally, lean the person forward to reduce aspiration risk. Never give anything by mouth to an unconscious person. Call a poison centre or doctor.</td></tr>
+          <tr><td>4.2 Symptoms/effects</td><td>Ingestion of significant quantities may cause nausea, CNS depression, metabolic acidosis and acute kidney injury due to the ethylene glycol content; onset of renal effects may be delayed by 12&ndash;24 hours. Skin absorption of DMSO can cause a transient garlic-like taste/breath odour and mild skin irritation.</td></tr>
+          <tr><td>4.3 Medical attention</td><td>Treat symptomatically. For significant ethylene glycol ingestion, consider antidotal therapy (fomepizole; alternatively ethanol) and monitor acid&ndash;base status and renal function.</td></tr>
+        </table>
+
+        <h2>SECTION 5: Fire-fighting measures</h2>
+        <table>
+          <tr><td>5.1 Extinguishing media</td><td>Water spray, alcohol-resistant foam, dry chemical or carbon dioxide. No extinguishing media known to be unsuitable.</td></tr>
+          <tr><td>5.2 Special hazards</td><td>The product is not classified as flammable (flash point &gt; 93&nbsp;&deg;C, closed cup; high water content). In the event of fire, thermal decomposition may release carbon oxides (CO, CO&#8322;) and sulphur oxides (SO&#8339;, from DMSO).</td></tr>
+          <tr><td>5.3 Advice for firefighters</td><td>Wear self-contained breathing apparatus and protective clothing. Use water spray to cool unopened containers exposed to fire.</td></tr>
+        </table>
+
+        <h2>SECTION 6: Accidental release measures</h2>
+        <table>
+          <tr><td>6.1 Personal precautions</td><td>Use personal protective equipment as described in Section 8. Avoid contact with skin, eyes and clothing. Ensure adequate ventilation. Spilled product is slippery. Evacuate non-essential personnel.</td></tr>
+          <tr><td>6.2 Environmental precautions</td><td>Prevent further leakage or spillage if safe to do so. Do not allow product to enter drains, surface water or groundwater.</td></tr>
+          <tr><td>6.3 Containment / cleaning up</td><td>Soak up with inert absorbent material (e.g. sand, diatomaceous earth, universal binder). Collect in suitable, closed and labelled containers and dispose of as hazardous waste (see Section 13).</td></tr>
+          <tr><td>6.4 Reference to other sections</td><td>See Section 8 for personal protection and Section 13 for disposal.</td></tr>
+        </table>
+
+        <h2>SECTION 7: Handling and storage</h2>
+        <table>
+          <tr><td>7.1 Safe handling</td><td>Avoid contact with skin and eyes &mdash; DMSO carries dissolved substances through intact skin (see 2.3). Use the personal protective equipment specified in Section 8. Keep containers closed when not in use. Do not eat, drink or smoke while handling. Wash hands after handling. Never return spills to original containers for re-use.</td></tr>
+          <tr><td>7.2 Safe storage</td><td>Keep containers tightly closed and upright in a cool, dry, well-ventilated place. Store away from strong oxidising agents. Suitable container materials: HDPE, glass, stainless steel. Keep out of the reach of unauthorised persons.</td></tr>
+          <tr><td>7.3 Specific end use(s)</td><td>See identified uses in Section 1.2. No further specific uses stipulated.</td></tr>
+        </table>
+
+        <h2>SECTION 8: Exposure controls / personal protection</h2>
+        <h3>8.1 Control parameters</h3>
+        <table>
+          <thead><tr><th>Substance</th><th>Limit</th><th>Value</th><th>Basis</th></tr></thead>
+          <tbody>
+            <tr><td>Ethylene glycol (CAS 107-21-1)</td><td>IOELV LTEL (8 h)</td><td>20 ppm / 52 mg/m&sup3;</td><td>EU Dir. 2000/39/EC &mdash; skin notation</td></tr>
+            <tr><td></td><td>IOELV STEL</td><td>40 ppm / 104 mg/m&sup3;</td><td>EU Dir. 2000/39/EC &mdash; skin notation</td></tr>
+            <tr><td>Dimethyl sulfoxide (CAS 67-68-5)</td><td>&mdash;</td><td>No EU IOELV established</td><td>Observe national limits where applicable</td></tr>
+          </tbody>
+        </table>
+        <h3>8.2 Exposure controls</h3>
+        <table>
+          <tr><td>Engineering controls</td><td>Use ventilation adequate to keep airborne concentrations below the exposure limits. Eye-wash facility recommended in the work area.</td></tr>
+          <tr><td>Eye/face protection</td><td>Tightly fitting safety goggles (EN 166).</td></tr>
+          <tr><td>Hand protection</td><td>Chemical-resistant gloves per EN ISO 374-1. Recommended material: butyl rubber (breakthrough time &gt; 480 min). Note: nitrile provides only short-term splash protection against DMSO-containing liquids &mdash; replace gloves immediately after contact.</td></tr>
+          <tr><td>Body protection</td><td>Protective clothing (lab coat/apron) selected according to the activity and amount handled.</td></tr>
+          <tr><td>Respiratory protection</td><td>Not required under normal use with adequate ventilation. Where mists or vapours exceed exposure limits, use a respirator with type ABEK-P cartridges (EN 14387).</td></tr>
+          <tr><td>Environmental controls</td><td>Do not let product enter drains or watercourses.</td></tr>
+        </table>
+
+        <h2>SECTION 9: Physical and chemical properties</h2>
+        <table>
+          <tr><td>Physical state / colour / odour</td><td>Liquid &middot; clear, colourless &middot; characteristic, sulphurous (DMSO). Odour threshold not determined.</td></tr>
+          <tr><td>pH</td><td>Not determined (tromethamine-buffered); record measured value per batch</td></tr>
+          <tr><td>Melting / boiling point</td><td>Not determined</td></tr>
+          <tr><td>Flash point / flammability</td><td>&gt; 93 &deg;C (closed cup) &mdash; not classified for flammability under CLP (no CLP flammability category applies)</td></tr>
+          <tr><td>Explosive limits / vapour pressure / vapour density</td><td>Not determined</td></tr>
+          <tr><td>Relative density</td><td>Not determined; record measured value per batch</td></tr>
+          <tr><td>Solubility</td><td>Fully miscible with water</td></tr>
+          <tr><td>Partition coefficient (n-octanol/water)</td><td>Not applicable (mixture)</td></tr>
+          <tr><td>Auto-ignition / decomposition temperature / viscosity</td><td>Not determined</td></tr>
+          <tr><td>Explosive / oxidising properties</td><td>None</td></tr>
+        </table>
+
+        <h2>SECTION 10: Stability and reactivity</h2>
+        <table>
+          <tr><td>10.1 Reactivity</td><td>No hazardous reactivity under normal conditions of use and storage.</td></tr>
+          <tr><td>10.2 Chemical stability</td><td>Stable under recommended storage conditions.</td></tr>
+          <tr><td>10.3 Hazardous reactions</td><td>DMSO can react vigorously with strong oxidising agents.</td></tr>
+          <tr><td>10.4 Conditions to avoid</td><td>Excessive heat; open flames in combination with incompatible materials.</td></tr>
+          <tr><td>10.5 Incompatible materials</td><td>Strong oxidising agents.</td></tr>
+          <tr><td>10.6 Hazardous decomposition products</td><td>On combustion: carbon oxides; sulphur oxides (from DMSO). None under normal storage.</td></tr>
+        </table>
+
+        <h2>SECTION 11: Toxicological information</h2>
+        <table>
+          <tr><td>Ethylene glycol (acute)</td><td>LD50 oral, rat: 4,700 mg/kg &middot; LD50 dermal, rabbit: 10,626 mg/kg</td></tr>
+          <tr><td>Dimethyl sulfoxide (acute)</td><td>LD50 oral, rat: 14,500 mg/kg &middot; LD50 dermal, rat: &gt; 5,000 mg/kg &middot; LC50 inhalation, rat: 40,250 ppm</td></tr>
+          <tr><td>Mixture</td><td>Classified Acute Tox. 4 (oral), H302, based on the ethylene glycol content and the CLP calculation method (converted acute toxicity estimate).</td></tr>
+          <tr><td>Skin / eye</td><td>Skin corrosion/irritation: not classified; may cause mild, transient irritation. Serious eye damage/irritation: not classified based on available component data.</td></tr>
+          <tr><td>Sensitisation / mutagenicity</td><td>Not classified. Germ cell mutagenicity: not classified.</td></tr>
+          <tr><td>Carcinogenicity</td><td>No component present at &ge; 0.1 % is identified as a carcinogen by IARC, NTP or OSHA.</td></tr>
+          <tr><td>Reproductive toxicity</td><td>Not classified under CLP. Note: ethylene glycol is listed under California Proposition 65 for developmental toxicity (ingestion route).</td></tr>
+          <tr><td>STOT</td><td>Single exposure: not classified. Repeated exposure: STOT RE 2 (H373) &mdash; may cause damage to the kidneys through prolonged or repeated oral exposure (ethylene glycol &ge; 10 %).</td></tr>
+          <tr><td>Aspiration hazard</td><td>Not classified.</td></tr>
+          <tr><td>Other</td><td>DMSO enhances percutaneous absorption of co-formulants and contaminants; treat skin contact with used solution accordingly.</td></tr>
+        </table>
+
+        <h2>SECTION 12: Ecological information</h2>
+        <table>
+          <tr><td>12.1 Toxicity &mdash; DMSO</td><td>LC50 fish (P. promelas, 96 h): 34,000 mg/l; LC50 fish (O. mykiss, 96 h): 35,000 mg/l; EC50 Daphnia magna (48 h): 24,600 mg/l; EC50 algae (72 h): 17,600 mg/l</td></tr>
+          <tr><td>12.1 Toxicity &mdash; Ethylene glycol</td><td>LC50 fish (O. mykiss, 96 h): 18,500 mg/l; LC50 fish (L. idus, 48 h): &gt; 10,000 mg/l; EC50 Daphnia magna (24&ndash;48 h): 41,000&ndash;74,000 mg/l; NOEC fish (7 d): 32,000 mg/l</td></tr>
+          <tr><td>12.2 Persistence / degradability</td><td>Ethylene glycol: readily biodegradable (BOD/ThBOD &asymp; 0.78). Dimethyl sulfoxide: not readily biodegradable (31 % in standard test).</td></tr>
+          <tr><td>12.3 Bioaccumulation</td><td>Low. Ethylene glycol BCF: 0.60. No bioaccumulation expected for any component.</td></tr>
+          <tr><td>12.4 Mobility in soil</td><td>Fully water-miscible; high mobility in soil and water expected.</td></tr>
+          <tr><td>12.5 PBT / vPvB</td><td>The mixture contains no PBT or vPvB substances.</td></tr>
+          <tr><td>12.6 Endocrine disruption</td><td>None known.</td></tr>
+          <tr><td>12.7 Other adverse effects</td><td>Component aquatic toxicity is low, but release to the environment must be avoided.</td></tr>
+        </table>
+
+        <h2>SECTION 13: Disposal considerations</h2>
+        <table>
+          <tr><td>Product / waste</td><td>Dispose of via a licensed hazardous-waste disposal contractor in accordance with Directive 2008/98/EC and national law (Switzerland: VeVA/OMoD, SR 814.610; Germany: KrWG/AVV). The applicable European List of Waste / VeVA code depends on the point and process of generation and must be agreed with the disposal contractor before collection. Do not discharge to drains or sewers.</td></tr>
+          <tr><td>Contaminated packaging</td><td>Drain completely. Dispose of uncleaned packaging in the same manner as the product; fully cleaned packaging may be recycled.</td></tr>
+        </table>
+
+        <h2>SECTION 14: Transport information</h2>
+        <p><strong>ADR/RID (road/rail), IMDG (sea), IATA (air), DOT (US): Not regulated.</strong> Not regulated as dangerous goods under any mode of transport. No UN number, proper shipping name, hazard class, packing group or environmental-hazard designation applies. No special precautions beyond Sections 7&ndash;8. Not transported in bulk per Annex II of MARPOL / IBC Code.</p>
+
+        <h2>SECTION 15: Regulatory information</h2>
+        <table>
+          <tr><td>EU &mdash; CLP</td><td>Classified per Regulation (EC) No 1272/2008; see Section 2. Ethylene glycol has a harmonised classification (Annex VI, Index No 603-027-00-1).</td></tr>
+          <tr><td>EU &mdash; REACH</td><td>No SVHC candidate-list substances present at &ge; 0.1 %. No Annex XVII restrictions identified for the components in the identified uses.</td></tr>
+          <tr><td>EU &mdash; Poison centres / UFI</td><td>UFI: not assigned; no poison-centre notification (PCN) submitted. Notification per Art. 45 / Annex VIII CLP and a UFI on the label become mandatory before this mixture is supplied to third parties in the EU/EEA; they are not required for the manufacturer&rsquo;s own internal use.</td></tr>
+          <tr><td>Germany</td><td>Water hazard class (WGK) of the mixture: not evaluated.</td></tr>
+          <tr><td>Switzerland</td><td>Chemicals Ordinance (ChemV, SR 813.11), aligned with CLP. Disposal per VeVA/OMoD (SR 814.610). Declaration of hazardous mixtures to the Swiss product register may apply to the Swiss importer.</td></tr>
+          <tr><td>US (informational)</td><td>California Proposition 65: ethylene glycol &mdash; developmental toxicity (ingested). US DOT: not regulated as dangerous goods.</td></tr>
+          <tr><td>15.2 Chemical safety assessment</td><td>A chemical safety assessment has not been carried out for this mixture.</td></tr>
+        </table>
+
+        <h2>SECTION 16: Other information</h2>
+        <p><strong>Full text of H-statements referred to in Sections 2 and 3:</strong> H302 Harmful if swallowed. H373 May cause damage to organs (kidneys) through prolonged or repeated exposure.</p>
+        <p><strong>Abbreviations:</strong> CLP: Regulation (EC) No 1272/2008; REACH: Regulation (EC) No 1907/2006; STOT RE: specific target organ toxicity, repeated exposure; ATE: acute toxicity estimate; IOELV: indicative occupational exposure limit value; PBT/vPvB: (very) persistent, (very) bioaccumulative, toxic; BCF: bioconcentration factor; PCN: poison centre notification; UFI: unique formula identifier; VeVA/OMoD: Swiss Ordinance on Movements of Waste; AVV: German Waste Catalogue Ordinance.</p>
+        <p><strong>Revision information &mdash; changes relative to Version 1 (06/09/2024):</strong> 1. Section 2/3: STOT RE 2 (H373, kidneys) and pictogram GHS08 added &mdash; required by the harmonised Annex VI classification of ethylene glycol at &ge; 10 % in the mixture. Precautionary statements P260 and P314 added; P501 completed. 2. Section 3: erroneous "Flammable liquids, Cat. 4" note for DMSO removed (category does not exist under CLP); the mixture is not classified for flammability (flash point &gt; 93 &deg;C). 3. Section 3: proprietary component "9X m-RPS-2" replaced by full disclosure of its constituents with CAS/EC numbers. 4. Section 1.2 (identified uses) added; poison-centre numbers (DE/CH) added. 5. Section 8: glove specification corrected to butyl rubber (EN ISO 374-1); "household use" wording removed. 6. Section 9: physical state, appearance, odour and water miscibility completed. 7. Section 11: reproductive-toxicity statement reconciled with the California Proposition 65 listing for ethylene glycol; note on DMSO percutaneous carrier effect added. 8. Section 12: ethylene glycol biodegradability value corrected (readily biodegradable). 9. Section 13 rewritten for the EU/Swiss waste framework. 10. Section 14: ADR/RID added (not regulated). 11. Section 15 restructured for EU/Switzerland; US information retained where relevant.</p>
+        <p><strong>Data sources:</strong> Manufacturer formulation records; component supplier safety data sheets; ECHA C&amp;L / Annex VI to CLP. Measured batch values (pH, density, refractive index, flash point) should be recorded per the manufacturer&rsquo;s batch documentation and this SDS updated if measured data indicate a different classification.</p>
+        <p class="sds-note"><strong>Disclaimer:</strong> The information above is believed to be accurate and represents the best information currently available to us. However, we make no warranty of merchantability or any other warranty, express or implied, with respect to such information, and we assume no liability resulting from its use. Users should make their own investigation to determine the suitability of the information for their particular purposes. In no event shall Tomorrow Biostasis GmbH be liable for any claims, losses, or damages of any third party or for lost profits or any special, indirect, incidental, consequential or exemplary damages, howsoever arising, even if Tomorrow Biostasis GmbH has been advised of the possibility of such damages.</p>
       </div>
     </div>
   </div>
@@ -1563,6 +2033,8 @@
   }
 
   function renderCalc() {
+    if (window.__calcFullSetOn) { renderCalcFullSet(); return; }
+    const _fsr = $("calcFullSetResults"); if (_fsr) _fsr.style.display = "none";
     errEl.textContent   = "";
     tbody.innerHTML     = "";
     totalEl.textContent = "";
@@ -2257,6 +2729,452 @@
       console.error(e);
       bagLabelStatus.textContent = "Download failed";
       setTimeout(() => bagLabelStatus.textContent = "", 3000);
+    }
+  });
+
+  /* ══════════════════════════════════
+     VM-1 FIXATIVE VARIANT
+     ══════════════════════════════════ */
+  const FIX_HEPES_PL = 3.574, FIX_NACL_PL = 8.328, FIX_NAOH_PL = 0.6;
+  const D_DMSO = 1.1004, D_EG = 1.1132;
+
+  const fixConc = $("fixConc"), fixVol = $("fixVol"), fixPct = $("fixPct");
+  const fixErr = $("fixErr"), fixEmpty = $("fixEmpty"), fixResults = $("fixResults");
+  const fixBody = $("fixBody"), fixSteps = $("fixSteps"), fixSummary = $("fixSummary");
+
+  function renderFix() {
+    fixErr.textContent = "";
+    $("fixPrintHeader").innerHTML = "VM-1 with Fixatives";
+    const c = Number(fixConc.value);
+    const V = Number(fixVol.value);
+    const F = fixPct.value === '' ? 4 : Number(fixPct.value);
+
+    if (!Number.isFinite(c) || !Number.isFinite(V) || fixConc.value === '' || fixVol.value === '') {
+      fixEmpty.style.display = "block"; fixResults.style.display = "none"; return;
+    }
+    if (c < 0 || c > 75) { fixErr.textContent = "Concentration must be between 0 and 75%."; fixEmpty.style.display = "block"; fixResults.style.display = "none"; return; }
+    if (V <= 0)          { fixErr.textContent = "Volume must be greater than 0.";           fixEmpty.style.display = "block"; fixResults.style.display = "none"; return; }
+    if (!Number.isFinite(F) || F < 0 || F > 20) { fixErr.textContent = "Total fixative must be between 0 and 20%."; fixEmpty.style.display = "block"; fixResults.style.display = "none"; return; }
+
+    fixEmpty.style.display = "none"; fixResults.style.display = "block";
+
+    const hepes = FIX_HEPES_PL * V;
+    const nacl  = FIX_NACL_PL * V;
+    const cpaG  = 5 * c * V;                 // grams each of DMSO and EG
+    const dmsoMl = cpaG / D_DMSO;
+    const egMl   = cpaG / D_EG;
+    const glut  = 10 * F * V;                // mL of glutaraldehyde 50%
+    const form  = 14.3 * F * V;              // mL of formaldehyde 35%
+    const naoh  = FIX_NAOH_PL * V;
+    const totMl = V * 1000;
+
+    fixSummary.innerHTML = `<span class="summary-dot"></span> ${c}% w/v &nbsp;&bull;&nbsp; ${V} L &nbsp;&bull;&nbsp; ${F}% total fixative &nbsp;&bull;&nbsp; final pH 7.4`;
+
+    const rows = [
+      ["HEPES", fmt(hepes, 2) + " g", "Carrier buffer &middot; 15 mM (MW 238.30)"],
+      ["NaCl", fmt(nacl, 2) + " g", "Carrier salt &middot; 142.5 mM (MW 58.44)"],
+      ["DMSO", fmt(cpaG, 2) + " g (&asymp; " + fmt(dmsoMl, 1) + " mL)", "VM-1 component &middot; weigh by mass (&rho; = 1.1004 g/mL)"],
+      ["Ethylene glycol", fmt(cpaG, 2) + " g (&asymp; " + fmt(egMl, 1) + " mL)", "VM-1 component &middot; weigh by mass (&rho; = 1.1132 g/mL)"],
+      ["Glutaraldehyde 50%", fmt(glut, 1) + " mL", "Fixative component"],
+      ["Formaldehyde 35%", fmt(form, 1) + " mL", "Fixative component"],
+      ["Total fixative", fmt(glut, 1) + " mL + " + fmt(form, 1) + " mL stock", F + "% total fixative in final " + fmt(V, 2) + " L"],
+      ["Osmotic H\u2082O (18.2 M\u03a9&middot;cm)", "q.s. to " + fmt(totMl, 0) + " mL", "Top off after all other additions"],
+      ["NaOH 10 M", "&asymp; " + fmt(naoh, 1) + " mL", "pH adjustment (carrier step)"],
+      ["HCl (e.g. 1 M)", "as needed", "Final pH adjustment if drift is upward"],
+    ];
+    fixBody.innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+
+    fixSteps.innerHTML = `
+      <li><strong>Carrier.</strong> Dissolve ${fmt(hepes,2)} g HEPES and ${fmt(nacl,2)} g NaCl in ~${fmt(totMl*0.8,0)} mL osmotic H\u2082O. Initial pH ~5.7; adjust to pH 7.40 with 10 M NaOH (expect &asymp; ${fmt(naoh,1)} mL).</li>
+      <li><strong>VM-1.</strong> Weigh and add ${fmt(cpaG,2)} g DMSO and ${fmt(cpaG,2)} g ethylene glycol &mdash; use a balance, do not pipette against a w/v target. Re-check pH; adjust to 7.40 if needed.</li>
+      <li><strong>Fixatives.</strong> Add ${fmt(glut,1)} mL glutaraldehyde 50% and ${fmt(form,1)} mL formaldehyde 35%. Re-check pH.</li>
+      <li><strong>Top off</strong> to ${fmt(totMl,0)} mL total volume with osmotic H\u2082O.</li>
+      <li><strong>Final pH</strong> to 7.40 with HCl if drifted up (avoid further NaOH at this stage to limit aldehyde reactivity).</li>
+      <li><strong>Record</strong> measured RI, pH, and osmolality on the QC sheet.</li>`;
+
+    $("fixPrintHeader").innerHTML = `VM-1 with Fixatives<span class="print-subtitle">${c}% w/v &mdash; ${V} L &mdash; ${F}% Total Fixative</span><span class="print-date">${todayStr()}</span>`;
+  }
+  [fixConc, fixVol, fixPct].forEach(el => el.addEventListener("input", renderFix));
+  renderFix();
+
+  /* ══════════════════════════════════
+     FULL SET — shared data
+     ══════════════════════════════════ */
+  const FULL_SET = [
+    {bag:1,  key:'mhp', recirc:'',           ri:null,   storage:'4\u00b0C Fridge',   comment:'Used as washout solution'},
+    {bag:2,  key:'mhp', recirc:'',           ri:null,   storage:'4\u00b0C Fridge',   comment:'Used as washout solution'},
+    {bag:3,  key:'mhp', recirc:'Check Temp', ri:null,   storage:'4\u00b0C Fridge',   comment:'Recirculate until you reach correct temperature'},
+    {bag:4,  key:'2.5', recirc:'',           ri:1.3425, storage:'4\u00b0C Fridge',   comment:'Begin when body temperature reaches 4\u00b0C'},
+    {bag:5,  key:'2.5', recirc:'',           ri:1.3425, storage:'4\u00b0C Fridge',   comment:'Begin when body temperature reaches 4\u00b0C'},
+    {bag:6,  key:'5',   recirc:'',           ri:1.3450, storage:'4\u00b0C Fridge',   comment:''},
+    {bag:7,  key:'5',   recirc:'',           ri:1.3450, storage:'4\u00b0C Fridge',   comment:''},
+    {bag:8,  key:'7.5', recirc:'',           ri:1.3476, storage:'4\u00b0C Fridge',   comment:''},
+    {bag:9,  key:'10',  recirc:'',           ri:1.3501, storage:'4\u00b0C Fridge',   comment:''},
+    {bag:10, key:'10',  recirc:'',           ri:1.3501, storage:'4\u00b0C Fridge',   comment:''},
+    {bag:11, key:'15',  recirc:'',           ri:1.3570, storage:'4\u00b0C Fridge',   comment:''},
+    {bag:12, key:'20',  recirc:'',           ri:1.3624, storage:'4\u00b0C Fridge',   comment:''},
+    {bag:13, key:'25',  recirc:'',           ri:1.3678, storage:'4\u00b0C Fridge',   comment:''},
+    {bag:14, key:'30',  recirc:'',           ri:1.3732, storage:'4\u00b0C Fridge',   comment:''},
+    {bag:15, key:'30',  recirc:'Check RI',   ri:1.3732, storage:'4\u00b0C Fridge',   comment:'Recirculate until you reach correct RI'},
+    {bag:16, key:'40',  recirc:'',           ri:1.3858, storage:'-20\u00b0C Freezer', comment:''},
+    {bag:17, key:'50',  recirc:'',           ri:1.3979, storage:'-20\u00b0C Freezer', comment:''},
+    {bag:18, key:'60',  recirc:'Check Temp', ri:1.4099, storage:'-20\u00b0C Freezer', comment:'Recirculate if the body temperature is not at 0\u00b0C'},
+    {bag:19, key:'70',  recirc:'',           ri:1.4200, storage:'-20\u00b0C Freezer', comment:''},
+    {bag:20, key:'70',  recirc:'',           ri:1.4200, storage:'-20\u00b0C Freezer', comment:''},
+    {bag:21, key:'70',  recirc:'',           ri:1.4200, storage:'-20\u00b0C Freezer', comment:''},
+    {bag:22, key:'70',  recirc:'',           ri:1.4200, storage:'-20\u00b0C Freezer', comment:''},
+    {bag:23, key:'70',  recirc:'',           ri:1.4200, storage:'-20\u00b0C Freezer', comment:''},
+    {bag:24, key:'70',  recirc:'',           ri:1.4200, storage:'-20\u00b0C Freezer', comment:''},
+    {bag:25, key:'70',  recirc:'',           ri:1.4200, storage:'-20\u00b0C Freezer', comment:''},
+    {bag:26, key:'70',  recirc:'Check RI',   ri:1.4200, storage:'-20\u00b0C Freezer', comment:'Recirculate until optimal RI is reached'},
+    {bag:27, key:'75',  recirc:'Check RI',   ri:1.4260, storage:'-20\u00b0C Freezer', comment:'Use if long-term dry ice transport is expected, or if you have not reached target RI'},
+  ];
+  const FULL_SET_STOCK = {'mhp':3,'2.5':2,'5':2,'7.5':1,'10':2,'15':1,'20':1,'25':1,'30':2,'40':1,'50':1,'60':1,'70':8,'75':1};
+  const FS_DB_ROWS = [[2.5,14],[5,14],[7.5,7],[10,14],[15,7],[20,7],[25,7],[30,14],[40,7],[50,7],[60,7],[70,56]];
+
+  /* ── Full Set tab table ── */
+  (function buildFullSetTable(){
+    const tb = $("fullSetBody");
+    tb.innerHTML = FULL_SET.map(r => {
+      const ci = COLOR_MAP[r.key];
+      const conc = r.key === 'mhp' ? 'MHP-2' : r.key + '%';
+      return `<tr>
+        <td><input type="checkbox" aria-label="Bag ${r.bag} prepared"></td>
+        <td><strong>${r.bag}</strong></td>
+        <td>${conc}</td>
+        <td><span class="fs-swatch-cell"><span class="color-swatch" style="background:${ci.color}"></span>${ci.name}</span></td>
+        <td>${r.recirc || '&ndash;'}</td>
+        <td>${r.ri ? r.ri.toFixed(4) : '&ndash;'}</td>
+        <td>${r.storage}</td>
+        <td>${r.comment || ''}</td>
+      </tr>`;
+    }).join("");
+    $("fullsetPrintHeader").innerHTML = `VM-1 Full Set<span class="print-subtitle">27 bags &mdash; MHP-2 + VM-1 2.5&ndash;75% &mdash; 7 L each</span><span class="print-date">${todayStr()}</span>`;
+  })();
+
+  /* ── Calculator full set ── */
+  function renderCalcFullSet() {
+    errEl.textContent = "";
+    summaryEl.style.display = "none";
+    emptyState.style.display = "none";
+    resultsTable.style.display = "none";
+    $("calcRiDisplay").style.display = "none";
+    $("calcRiPrint").style.display = "none";
+
+    const box = $("calcFullSetResults");
+    const recipes = [[70, 87.25], [75, 7]];
+    let html = `<div class="info-note" style="margin-bottom:16px;">Full-set from-scratch requirement: <strong>87.25 L of 70%</strong> (feeds all dilutions + the eight 70% bags) and <strong>7 L of 75%</strong>. MHP-2 is excluded &mdash; see the MHP-2 tab. 1&times; m-RPS-2 needed for dilution: 73.75 L.</div>`;
+    for (const [pct, vol] of recipes) {
+      const { items, total } = compute(pct, vol);
+      const ri = expectedRI(pct);
+      html += `<div class="section-header">${pct}% w/v &mdash; ${vol} L (from scratch)</div>
+        <table><thead><tr><th>Ingredient</th><th>Mass (g)</th></tr></thead><tbody>`;
+      for (const [name, grams] of items) html += `<tr><td>${name}</td><td>${fmt(grams)} g</td></tr>`;
+      html += `</tbody><tfoot><tr><td>Total Weight</td><td>${fmt(total)} g</td></tr></tfoot></table>
+        <div class="ri-display" style="display:flex; margin-bottom:20px;">Expected RI: ${fmtRI(ri)}</div>
+        <div class="print-ri print-only">Expected RI: ${fmtRI(ri)}</div>`;
+    }
+    box.innerHTML = html;
+    box.style.display = "block";
+    $("calcPrintHeader").innerHTML = `VM-1 from Scratch &mdash; Full Set<span class="print-subtitle">70% &times; 87.25 L &nbsp;+&nbsp; 75% &times; 7 L</span><span class="print-date">${todayStr()}</span>`;
+  }
+  $("calcFullSet").addEventListener("change", () => {
+    const on = $("calcFullSet").checked;
+    window.__calcFullSetOn = on;
+    strengthEl.disabled = on;
+    amountEl.disabled = on;
+    renderCalc();
+  });
+
+  /* ── Dilution Base full set ── */
+  $("dbFullSet").addEventListener("change", () => {
+    const on = $("dbFullSet").checked;
+    $("dbFsNote").style.display = on ? "block" : "none";
+    if (on) {
+      dbCount.value = FS_DB_ROWS.length;
+      buildDbRows();
+      const concs = dbRows.querySelectorAll('input[data-db-conc]');
+      const vols  = dbRows.querySelectorAll('input[data-db-vol]');
+      FS_DB_ROWS.forEach(([c, v], i) => { concs[i].value = c; vols[i].value = v; });
+      renderDbBase();
+    } else {
+      dbCount.value = '';
+      buildDbRows();
+    }
+  });
+
+  /* ── 1× m-RPS-2 full set ── */
+  $("rpsFullSet").addEventListener("change", () => {
+    rpsVolume.value = $("rpsFullSet").checked ? 73.75 : '';
+    renderRps();
+  });
+
+  /* ── MHP-2 full set ── */
+  $("mhpFullSet").addEventListener("change", () => {
+    mhpBags.value = $("mhpFullSet").checked ? 3 : '';
+    renderMhp();
+  });
+
+  /* ── Stock full set ── */
+  $("stockFullSet").addEventListener("change", () => {
+    const on = $("stockFullSet").checked;
+    stockGrid.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      const k = cb.dataset.key;
+      const numInput = stockGrid.querySelector(`input[data-input="${k}"]`);
+      if (on && FULL_SET_STOCK[k] !== undefined) {
+        cb.checked = true; numInput.disabled = false; numInput.value = FULL_SET_STOCK[k];
+      } else if (!on) {
+        cb.checked = false; numInput.disabled = true; numInput.value = '';
+      }
+    });
+    renderStock();
+  });
+
+  /* ══════════════════════════════════
+     BAG LABELS — Full Set ZIP
+     ══════════════════════════════════ */
+  $("genFullSetBtn").addEventListener("click", async () => {
+    const st = $("fsStatus");
+    if (typeof JSZip === 'undefined') { st.textContent = "JSZip failed to load"; return; }
+    const incS = $("fsStorage").checked, incC = $("fsComments").checked;
+    const saved = {
+      num: bagNum.value, type: bagType.value, ph: bagPh.value, ri: bagRi.value,
+      rec: bagRecirc.checked, med: bagMedication.checked
+    };
+    const storageWrap = $("bagStorageWrap"), storageVal = $("bagStorageVal"), commentLine = $("bagCommentLine");
+    try {
+      const zip = new JSZip();
+      for (const row of FULL_SET) {
+        bagNum.value = row.bag;
+        bagType.value = row.key;
+        bagPh.value = '';
+        bagRi.value = row.ri ? row.ri.toFixed(4) : '';
+        bagRecirc.checked = !!row.recirc;
+        bagMedication.checked = false;
+        renderBagLabel();
+        if (incS) { storageWrap.style.display = ''; storageVal.textContent = row.storage; }
+        else { storageWrap.style.display = 'none'; }
+        if (incC && row.comment) { commentLine.style.display = ''; commentLine.textContent = row.comment; }
+        else { commentLine.style.display = 'none'; commentLine.textContent = ''; }
+        st.textContent = `Rendering ${row.bag}/27\u2026`;
+        await new Promise(r => setTimeout(r, 80));
+        const canvas = await html2canvas(bagLabelEl, { scale: 4, useCORS: true, backgroundColor: "#ffffff" });
+        const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
+        const fname = `Bag${String(row.bag).padStart(2,'0')}_${row.key === 'mhp' ? 'MHP2' : row.key + 'pct'}${row.recirc ? '_RECIRC' : ''}.png`;
+        zip.file(fname, blob);
+      }
+      st.textContent = "Zipping\u2026";
+      const zblob = await zip.generateAsync({ type: "blob" });
+      const link = document.createElement("a");
+      link.download = `VM1_Full_Set_Labels_${bagDate.value || 'undated'}.zip`;
+      link.href = URL.createObjectURL(zblob);
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+      st.textContent = "\u2713 ZIP downloaded (27 labels)";
+    } catch (e) {
+      console.error(e);
+      st.textContent = "Generation failed";
+    } finally {
+      bagNum.value = saved.num; bagType.value = saved.type; bagPh.value = saved.ph; bagRi.value = saved.ri;
+      bagRecirc.checked = saved.rec; bagMedication.checked = saved.med;
+      storageWrap.style.display = 'none'; commentLine.style.display = 'none'; commentLine.textContent = '';
+      renderBagLabel();
+      setTimeout(() => st.textContent = "", 4000);
+    }
+  });
+
+  /* ══════════════════════════════════
+     REGULATORY LABELS
+     ══════════════════════════════════ */
+  function ghsSvg(kind, mm) {
+    const sym = kind === 'GHS07'
+      ? '<rect x="45" y="20" width="10" height="34" rx="3" fill="#000"/><circle cx="50" cy="68" r="7" fill="#000"/>'
+      : '<circle cx="50" cy="23" r="6.5" fill="#000"/><path d="M39.5 32h21l6.5 30-10 4.5V82H43V66.5l-10-4.5z" fill="#000"/><path d="M50 36l10.5-6-4.5 10.5 12 1.5-10.5 6 6 9-12-3-1.5 12-4.5-11.5-10.5 4.5 6-10.5-10.5-4.5 12-1.5-4.5-10.5z" fill="#fff"/>';
+    return `<svg viewBox="0 0 100 100" style="width:${mm}mm;height:${mm}mm;flex-shrink:0;" xmlns="http://www.w3.org/2000/svg"><path d="M50 3 97 50 50 97 3 50Z" fill="#fff" stroke="#e30613" stroke-width="6"/>${sym}</svg>`;
+  }
+
+  const REG_SIZES = { s1: [52, 74, 16], s2: [74, 105, 23], s3: [105, 148, 32], s4: [148, 210, 46] };
+  const REG_SUPPLIER = 'Tomorrow Biostasis GmbH \u00b7 Graefestra\u00dfe 11 \u00b7 10967 Berlin \u00b7 +49 151 59209203';
+
+  const REG_TXT = {
+    de: {
+      title: 'VM-1 Embalming Solution (unverd\u00fcnnt)',
+      contains: 'Enth\u00e4lt: Ethylenglykol',
+      signal: 'Achtung',
+      h302: 'H302 Gesundheitssch\u00e4dlich bei Verschlucken.',
+      h373: 'H373 Kann die Nieren sch\u00e4digen bei l\u00e4ngerer oder wiederholter Exposition (oral).',
+      pFull: ['P260 Nebel/Dampf/Aerosol nicht einatmen.', 'P270 Bei Gebrauch nicht essen, trinken oder rauchen.', 'P280 Schutzhandschuhe/Augenschutz tragen.', 'P301+P312 BEI VERSCHLUCKEN: Bei Unwohlsein GIFTINFORMATIONSZENTRUM/Arzt anrufen.', 'P314 Bei Unwohlsein \u00e4rztlichen Rat einholen.', 'P501 Inhalt/Beh\u00e4lter einer anerkannten Sonderabfallsammelstelle zuf\u00fchren.'],
+      pRed: ['P260 Nebel/Dampf/Aerosol nicht einatmen.', 'P314 Bei Unwohlsein \u00e4rztlichen Rat einholen.', 'P501 Inhalt/Beh\u00e4lter einer anerkannten Sonderabfallsammelstelle zuf\u00fchren.'],
+      idNote: 'Interne Kennzeichnung (TRGS 201)',
+      date: 'Datum', batch: 'Charge', prep: 'Erstellt von',
+      thisWayUp: 'OBEN \u2014 THIS WAY UP',
+      notRestricted: 'Kein Gefahrgut gem\u00e4\u00df ADR/RID/IMDG/IATA \u2014 siehe SDB.',
+      wasteTitle: 'PERFUSAT', wasteSub: 'Enth\u00e4lt DMSO / Ethylenglykol', wasteLine: 'Zur Entsorgung',
+      signHead: 'ACHTUNG', signLine1: 'Lagerung gesundheitssch\u00e4dlicher Stoffe', signLine2: 'VM-1 \u2014 enth\u00e4lt Ethylenglykol (H302, H373)'
+    },
+    en: {
+      title: 'VM-1 Embalming Solution (undiluted)',
+      contains: 'Contains: ethylene glycol',
+      signal: 'Warning',
+      h302: 'H302 Harmful if swallowed.',
+      h373: 'H373 May cause damage to organs (kidneys) through prolonged or repeated exposure.',
+      pFull: ['P260 Do not breathe mist/vapours/spray.', 'P270 Do not eat, drink or smoke when using this product.', 'P280 Wear protective gloves/eye protection.', 'P301+P312 IF SWALLOWED: Call a POISON CENTER/doctor if you feel unwell.', 'P314 Get medical advice/attention if you feel unwell.', 'P501 Dispose of contents/container to an approved hazardous-waste collection point.'],
+      pRed: ['P260 Do not breathe mist/vapours/spray.', 'P314 Get medical advice/attention if you feel unwell.', 'P501 Dispose of contents/container to an approved hazardous-waste collection point.'],
+      idNote: 'In-process label (workplace)',
+      date: 'Date', batch: 'Batch', prep: 'Prepared by',
+      thisWayUp: 'THIS WAY UP',
+      notRestricted: 'Not restricted \u2014 not classified as dangerous goods per IATA DGR. Refer to SDS.',
+      wasteTitle: 'PERFUSATE', wasteSub: 'Contains DMSO / ethylene glycol', wasteLine: 'For disposal',
+      signHead: 'WARNING', signLine1: 'Storage of health-hazardous substances', signLine2: 'VM-1 \u2014 contains ethylene glycol (H302, H373)'
+    }
+  };
+
+  function egTier(pct) {
+    const p = Number(pct);
+    if (p >= 60) return 2;      // EG >= ~27.8% w/w  -> full label
+    if (p >= 25) return 1;      // EG ~12.0-23.4% w/w -> GHS08 tier
+    return 0;                   // EG <= ~9.6% w/w   -> no CLP label
+  }
+
+  const regType = $("regType"), regLang = $("regLang"), regSize = $("regSize"), regConc = $("regConc");
+  regConc.innerHTML = VM1_PERCENTAGES.map(p => `<option value="${p}" ${p === 70 ? 'selected' : ''}>${p}%</option>`).join("");
+
+  function renderReg() {
+    const type = regType.value, L = REG_TXT[regLang.value];
+    $("regSizeWrap").style.display = (type === 'clp') ? '' : 'none';
+    $("regConcWrap").style.display = (type === 'dilution') ? '' : 'none';
+    $("regTransportFields").style.display = (type === 'transport') ? '' : 'none';
+    $("regTierNote").style.display = 'none';
+
+    const pv = $("regPreview");
+    let w, h, headerName, dims = '';
+
+    if (type === 'clp') {
+      const [wm, hm, pm] = REG_SIZES[regSize.value];
+      w = wm; h = hm; dims = `${wm} \u00d7 ${hm} mm \u00b7 pictograms ${pm} \u00d7 ${pm} mm`;
+      const fs = { s1: 5, s2: 6.4, s3: 8, s4: 10 }[regSize.value];
+      pv.innerHTML = `<div class="reg-label" style="width:${wm}mm;height:${hm}mm;font-size:${fs}pt;">
+        <div class="reg-title" style="font-size:${fs * 1.35}pt;">${L.title}</div>
+        <div class="reg-contains">${L.contains}</div>
+        <div class="ghs-row">${ghsSvg('GHS07', pm)}${ghsSvg('GHS08', pm)}</div>
+        <div class="reg-signal" style="font-size:${fs * 1.3}pt;">${L.signal}</div>
+        <div class="reg-h">${L.h302}<br>${L.h373}</div>
+        <div class="reg-p">${L.pFull.join(' ')}</div>
+        <div class="reg-supplier">${REG_SUPPLIER}</div>
+      </div>`;
+      headerName = `CLP Product Label \u2014 full strength (${wm}\u00d7${hm} mm, ${regLang.value.toUpperCase()})`;
+    } else if (type === 'dilution') {
+      const c = Number(regConc.value);
+      const tier = egTier(c);
+      w = 74; h = tier === 0 ? 52 : 105; dims = `${w} \u00d7 ${h} mm`;
+      const note = $("regTierNote");
+      note.style.display = 'block';
+      if (tier === 0) {
+        note.innerHTML = `<strong>${c}% w/v:</strong> EG &lt; 10% w/w \u2192 no CLP hazard label required. Identification-only workplace label shown.`;
+        pv.innerHTML = `<div class="reg-label" style="width:${w}mm;height:${h}mm;font-size:7pt;">
+          <div class="reg-id-big">VM-1</div>
+          <div class="reg-id-strength">${c}% w/v</div>
+          <div class="reg-blank-line"><span>${L.date}:</span><span class="rb-line"></span></div>
+          <div class="reg-blank-line"><span>${L.batch}:</span><span class="rb-line"></span></div>
+          <div class="reg-blank-line"><span>${L.prep}:</span><span class="rb-line"></span></div>
+          <div style="margin-top:auto;font-size:5.5pt;color:#555;">${L.idNote} \u00b7 ${REG_SUPPLIER}</div>
+        </div>`;
+        headerName = `Dilution Label \u2014 VM-1 ${c}% w/v (no hazard label, ${regLang.value.toUpperCase()})`;
+      } else if (tier === 1) {
+        note.innerHTML = `<strong>${c}% w/v:</strong> EG 10\u201325% w/w \u2192 GHS08 tier: ${L.signal}, H373, P260/P314/P501.`;
+        pv.innerHTML = `<div class="reg-label" style="width:${w}mm;height:${h}mm;font-size:6.4pt;">
+          <div class="reg-title" style="font-size:9pt;">VM-1, ${c}% w/v</div>
+          <div class="reg-contains">${L.contains}</div>
+          <div class="ghs-row">${ghsSvg('GHS08', 23)}</div>
+          <div class="reg-signal" style="font-size:8.5pt;">${L.signal}</div>
+          <div class="reg-h">${L.h373}</div>
+          <div class="reg-p">${L.pRed.join(' ')}</div>
+          <div class="reg-supplier">${REG_SUPPLIER}</div>
+        </div>`;
+        headerName = `Dilution Label \u2014 VM-1 ${c}% w/v (GHS08 tier, ${regLang.value.toUpperCase()})`;
+      } else {
+        note.innerHTML = `<strong>${c}% w/v:</strong> EG &ge; 25% w/w \u2192 full label: GHS07 + GHS08, ${L.signal}, H302 + H373.`;
+        pv.innerHTML = `<div class="reg-label" style="width:${w}mm;height:${h}mm;font-size:6.4pt;">
+          <div class="reg-title" style="font-size:9pt;">VM-1, ${c}% w/v</div>
+          <div class="reg-contains">${L.contains}</div>
+          <div class="ghs-row">${ghsSvg('GHS07', 23)}${ghsSvg('GHS08', 23)}</div>
+          <div class="reg-signal" style="font-size:8.5pt;">${L.signal}</div>
+          <div class="reg-h">${L.h302}<br>${L.h373}</div>
+          <div class="reg-p">${L.pFull.join(' ')}</div>
+          <div class="reg-supplier">${REG_SUPPLIER}</div>
+        </div>`;
+        headerName = `Dilution Label \u2014 VM-1 ${c}% w/v (full label, ${regLang.value.toUpperCase()})`;
+      }
+    } else if (type === 'transport') {
+      w = 148; h = 105; dims = `${w} \u00d7 ${h} mm`;
+      const from = ($("regFrom").value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      const to = ($("regTo").value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      pv.innerHTML = `<div class="reg-label" style="width:${w}mm;height:${h}mm;font-size:8pt;">
+        <div class="transport-addr-row">
+          <div class="t-addr"><h4>From / Absender</h4>${from}</div>
+          <div class="t-addr"><h4>To / Empf\u00e4nger</h4>${to}</div>
+        </div>
+        <div class="up-arrows">\u2b06 \u2b06</div>
+        <div style="text-align:center;font-weight:900;letter-spacing:0.1em;">${L.thisWayUp}</div>
+        <div style="margin-top:auto;border-top:1px solid #000;padding-top:1.5mm;font-size:7pt;">
+          Not restricted \u2014 not classified as dangerous goods per IATA DGR. Refer to SDS.${regLang.value === 'de' ? '<br>' + L.notRestricted : ''}
+        </div>
+      </div>`;
+      headerName = 'Transport Label \u2014 outer box';
+    } else if (type === 'waste') {
+      w = 105; h = 74; dims = `${w} \u00d7 ${h} mm`;
+      pv.innerHTML = `<div class="reg-label" style="width:${w}mm;height:${h}mm;font-size:9pt;">
+        <div class="reg-id-big" style="font-size:22pt;">${L.wasteTitle}</div>
+        <div style="text-align:center;font-weight:700;font-size:11pt;">${L.wasteSub}</div>
+        <div style="text-align:center;font-size:9pt;color:#333;margin-top:1mm;">${L.wasteLine}</div>
+        <div class="reg-blank-line" style="margin-top:auto;"><span>${L.date}:</span><span class="rb-line"></span></div>
+        <div style="font-size:6.5pt;color:#555;margin-top:1mm;">${REG_SUPPLIER}</div>
+      </div>`;
+      headerName = `Waste Label (${regLang.value.toUpperCase()})`;
+    } else {
+      w = 210; h = 148; dims = `${w} \u00d7 ${h} mm (A5)`;
+      pv.innerHTML = `<div class="reg-label" style="width:${w}mm;height:${h}mm;font-size:12pt;align-items:center;justify-content:center;text-align:center;">
+        <div class="ghs-row" style="justify-content:center;">${ghsSvg('GHS07', 46)}${ghsSvg('GHS08', 46)}</div>
+        <div class="reg-signal" style="font-size:22pt;margin-top:2mm;">${L.signHead}</div>
+        <div style="font-weight:700;font-size:13pt;margin-top:1mm;">${L.signLine1}</div>
+        <div style="font-size:11pt;margin-top:1mm;">${L.signLine2}</div>
+        <div style="font-size:8pt;color:#555;margin-top:4mm;">${REG_SUPPLIER}</div>
+      </div>`;
+      headerName = `Storage Area Sign (${regLang.value.toUpperCase()})`;
+    }
+
+    $("regDims").innerHTML = `(${dims})`;
+    $("regPrintHeader").innerHTML = `Regulatory Label<span class="print-subtitle">${headerName}</span><span class="print-date">${todayStr()}</span>`;
+  }
+
+  [regType, regLang, regSize, regConc].forEach(el => el.addEventListener("change", renderReg));
+  $("regFrom").addEventListener("input", renderReg);
+  $("regTo").addEventListener("input", renderReg);
+  renderReg();
+
+  // SDS inline pictograms
+  $("sdsPictos").innerHTML = ghsSvg('GHS07', 18) + ghsSvg('GHS08', 18);
+
+  $("regDownloadBtn").addEventListener("click", async () => {
+    const st = $("regStatus");
+    st.textContent = "Generating\u2026";
+    try {
+      const el = $("regPreview").firstElementChild;
+      const canvas = await html2canvas(el, { scale: 4, useCORS: true, backgroundColor: "#ffffff" });
+      const link = document.createElement("a");
+      const t = regType.value;
+      const extra = t === 'clp' ? '_' + regSize.value + '_' + regLang.value
+                  : t === 'dilution' ? '_' + regConc.value + 'pct_' + regLang.value
+                  : '_' + regLang.value;
+      link.download = `RegLabel_${t}${extra}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      st.textContent = "\u2713 Downloaded!";
+      setTimeout(() => st.textContent = "", 2500);
+    } catch (e) {
+      console.error(e);
+      st.textContent = "Download failed";
+      setTimeout(() => st.textContent = "", 3000);
     }
   });
 </script>
