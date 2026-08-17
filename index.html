@@ -767,6 +767,8 @@
     .sds td:first-child { font-weight: 600; color: var(--gray-700); width: 230px; }
     .sds .sds-note { font-size: 12px; color: var(--gray-500); font-style: italic; }
 
+    .fs-sheet + .fs-sheet { margin-top: 32px; border-top: 1px dashed var(--gray-200); padding-top: 24px; }
+
     /* Print */
     .print-only { display: none; }
 
@@ -888,6 +890,10 @@
       #tab-sds .card, #tab-fixative .card, #tab-fullset .card, #tab-regulatory .card { page-break-inside: auto; }
       .sds h2 { page-break-after: avoid; }
       #fullSetTable tr { page-break-inside: avoid; }
+      .fs-suppress { display: none !important; }
+      .fs-break { page-break-before: always; }
+      #tab-dilution .card { page-break-inside: auto; }
+      .fs-sheet { page-break-inside: avoid; }
     }
   </style>
 </head>
@@ -1008,6 +1014,7 @@
           </div>
         </div>
         <div id="dilErr" class="error"></div>
+        <div class="checkbox-row" style="margin-top:12px;"><input type="checkbox" id="dilFullSet"><label for="dilFullSet"><strong>Full set</strong> &mdash; one dilution sheet per concentration (12 sheets, 2.5&ndash;70%); printing prints them all</label></div>
         <div class="info-note">Maximum target is 70%. For 75%, mix from scratch using the Calculator tab.</div>
       </div>
 
@@ -1028,6 +1035,7 @@
 
         <div id="dilRiDisplay" class="ri-display" style="display:none;"></div>
         <div class="print-ri print-only" id="dilRiPrint" style="display:none;"></div>
+        <div id="dilFullSetSheets" style="display:none;"></div>
 
         <div class="print-measurements print-only">
           <h3>Measured Values</h3>
@@ -1509,14 +1517,23 @@
             <input type="checkbox" id="bagMedication">
             <label for="bagMedication"><strong>Medication</strong> (adds MEDICATION banner)</label>
           </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="fsStorage">
+            <label for="fsStorage"><strong>Storage temperature</strong> (auto: 4&deg;C for &le;30% &amp; MHP-2, &minus;20&deg;C for &ge;40%)</label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="fsComments">
+            <label for="fsComments"><strong>Comment</strong> (from the Full Set table when bag no. + concentration match)</label>
+          </div>
         </div>
 
         <div style="margin-top:20px; padding-top:20px; border-top: 1px solid var(--gray-100);">
           <label style="margin-bottom:12px;">Full Set (all 27 bags as ZIP)</label>
           <div style="display:flex; flex-wrap:wrap; gap:20px;">
-            <div class="checkbox-row"><input type="checkbox" id="fsStorage"><label for="fsStorage">Include storage temperature</label></div>
-            <div class="checkbox-row"><input type="checkbox" id="fsComments"><label for="fsComments">Include comments</label></div>
+            <div class="checkbox-row"><input type="checkbox" id="fsPh" checked><label for="fsPh">Include pH (uses the pH field above on all labels)</label></div>
+            <div class="checkbox-row"><input type="checkbox" id="fsRi" checked><label for="fsRi">Include target RI (per bag, from the Full Set table)</label></div>
           </div>
+          <div class="info-note" style="margin-top:10px;">Storage temperature and comment are controlled by the checkboxes above and apply to single labels and the full set alike.</div>
           <div class="toolbar" style="border-top:none; padding-top:8px; margin-top:4px;">
             <button id="genFullSetBtn" class="btn-primary" type="button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
@@ -2097,6 +2114,10 @@ Germany</textarea>
   const dilTotal  = $("dilTotal");
 
   function renderDilution() {
+    if (window.__dilFullSetOn) { renderDilFullSet(); return; }
+    const _dfs = $("dilFullSetSheets"); if (_dfs) _dfs.style.display = "none";
+    $("dilPrintHeader").classList.remove("fs-suppress");
+    const _dmb = document.querySelector("#tab-dilution .print-measurements"); if (_dmb) _dmb.classList.remove("fs-suppress");
     dilErr.textContent = "";
     dilBody.innerHTML  = "";
     $("dilRiDisplay").style.display = "none";
@@ -2704,6 +2725,7 @@ Germany</textarea>
     if (bagMedication.checked) flags.push('MEDICATION');
     const flagText = flags.length ? ` &mdash; ${flags.join(' + ')}` : '';
     $("bagPrintHeader").innerHTML = `Bag ${num} &mdash; ${strengthLabel}${flagText}<span class="print-date">${todayStr()}</span>`;
+    if (window.__bagExtras) window.__bagExtras();
   }
 
   [bagNum, bagType, bagPh, bagRi, bagDate, ccBorder, ccBar, ccBg, bagRecirc, bagMedication].forEach(el => {
@@ -2829,6 +2851,25 @@ Germany</textarea>
     {bag:26, key:'70',  recirc:'Check RI',   ri:1.4200, storage:'-20\u00b0C Freezer', comment:'Recirculate until optimal RI is reached'},
     {bag:27, key:'75',  recirc:'Check RI',   ri:1.4260, storage:'-20\u00b0C Freezer', comment:'Use if long-term dry ice transport is expected, or if you have not reached target RI'},
   ];
+  window.__bagExtras = function () {
+    const sWrap = $("bagStorageWrap"), sVal = $("bagStorageVal"), cLine = $("bagCommentLine");
+    const key = bagType.value;
+    const row = FULL_SET.find(r => r.bag === Number(bagNum.value) && r.key === key) || null;
+    if ($("fsStorage").checked) {
+      sWrap.style.display = '';
+      sVal.textContent = row ? row.storage : ((key === 'mhp' || Number(key) < 40) ? '4\u00b0C Fridge' : '-20\u00b0C Freezer');
+    } else {
+      sWrap.style.display = 'none';
+    }
+    if ($("fsComments").checked && row && row.comment) {
+      cLine.style.display = ''; cLine.textContent = row.comment;
+    } else {
+      cLine.style.display = 'none'; cLine.textContent = '';
+    }
+  };
+  ["fsStorage", "fsComments"].forEach(id => $(id).addEventListener("change", renderBagLabel));
+  renderBagLabel();
+
   const FULL_SET_STOCK = {'mhp':3,'2.5':2,'5':2,'7.5':1,'10':2,'15':1,'20':1,'25':1,'30':2,'40':1,'50':1,'60':1,'70':8,'75':1};
   const FS_DB_ROWS = [[2.5,14],[5,14],[7.5,7],[10,14],[15,7],[20,7],[25,7],[30,14],[40,7],[50,7],[60,7],[70,56]];
 
@@ -2903,6 +2944,57 @@ Germany</textarea>
     }
   });
 
+  /* ── VM-1 Dilution full set (12 sheets) ── */
+  function renderDilFullSet() {
+    dilErr.textContent = "";
+    dilEmpty.style.display = "none";
+    dilTable.style.display = "none";
+    $("dilRiDisplay").style.display = "none";
+    $("dilRiPrint").style.display = "none";
+    $("dilPrintHeader").classList.add("fs-suppress");
+    const mb = document.querySelector("#tab-dilution .print-measurements");
+    if (mb) mb.classList.add("fs-suppress");
+
+    const MEAS = '<div class="print-measurements print-only"><h3>Measured Values</h3>' +
+      ["Measured RI", "Measured pH", "Measured Osmolality", "Operator", "Date", "Batch ID"]
+        .map(l => `<div class="measure-row"><label>${l}:</label><div class="measure-line"></div></div>`).join("") +
+      '</div>';
+
+    let html = '<div class="info-note no-print" style="margin-bottom:16px;">12 dilution sheets — one per concentration. Printing this tab prints all 12 pages, each with its own header and measurement blanks. 75% (7 L) is made from scratch — see Calculator tab. MHP-2 is excluded — see MHP-2 tab.</div>';
+
+    FS_DB_ROWS.forEach(([t, v], i) => {
+      const stockL = v * (t / 70);
+      const rpsL = v - stockL;
+      const ri = expectedRI(t);
+      html += `<div class="fs-sheet${i > 0 ? ' fs-break' : ''}">
+        <div class="print-header print-only">VM-1 Dilution<span class="print-subtitle">${t}% w/v &mdash; ${v} L (from 70% stock + 1&times; m-RPS-2)</span><span class="print-date">${todayStr()}</span></div>
+        <div class="section-header">${t}% w/v &mdash; ${v} L</div>
+        <table>
+          <thead><tr><th>Component</th><th>Volume</th></tr></thead>
+          <tbody>
+            <tr><td>70% VM-1 stock</td><td>${fmt(stockL, 3)} L &nbsp;(${fmt(stockL * 1000, 1)} mL)</td></tr>
+            <tr><td>1× m-RPS-2</td><td>${fmt(rpsL, 3)} L &nbsp;(${fmt(rpsL * 1000, 1)} mL)</td></tr>
+          </tbody>
+          <tfoot><tr><td>Final Volume</td><td>${fmt(v, 3)} L (${t}% w/v)</td></tr></tfoot>
+        </table>
+        <div class="ri-display" style="display:flex;">Expected RI: ${fmtRI(ri)}</div>
+        <div class="print-ri print-only">Expected RI: ${fmtRI(ri)}</div>
+        ${MEAS}
+      </div>`;
+    });
+
+    const box = $("dilFullSetSheets");
+    box.innerHTML = html;
+    box.style.display = "block";
+  }
+  $("dilFullSet").addEventListener("change", () => {
+    const on = $("dilFullSet").checked;
+    window.__dilFullSetOn = on;
+    dilTarget.disabled = on;
+    dilVolume.disabled = on;
+    renderDilution();
+  });
+
   /* ── 1× m-RPS-2 full set ── */
   $("rpsFullSet").addEventListener("change", () => {
     rpsVolume.value = $("rpsFullSet").checked ? 73.75 : '';
@@ -2936,26 +3028,21 @@ Germany</textarea>
   $("genFullSetBtn").addEventListener("click", async () => {
     const st = $("fsStatus");
     if (typeof JSZip === 'undefined') { st.textContent = "JSZip failed to load"; return; }
-    const incS = $("fsStorage").checked, incC = $("fsComments").checked;
+    const incPh = $("fsPh").checked, incRi = $("fsRi").checked;
     const saved = {
       num: bagNum.value, type: bagType.value, ph: bagPh.value, ri: bagRi.value,
       rec: bagRecirc.checked, med: bagMedication.checked
     };
-    const storageWrap = $("bagStorageWrap"), storageVal = $("bagStorageVal"), commentLine = $("bagCommentLine");
     try {
       const zip = new JSZip();
       for (const row of FULL_SET) {
         bagNum.value = row.bag;
         bagType.value = row.key;
-        bagPh.value = '';
-        bagRi.value = row.ri ? row.ri.toFixed(4) : '';
+        bagPh.value = incPh ? saved.ph : '';
+        bagRi.value = (incRi && row.ri) ? row.ri.toFixed(4) : '';
         bagRecirc.checked = !!row.recirc;
         bagMedication.checked = false;
         renderBagLabel();
-        if (incS) { storageWrap.style.display = ''; storageVal.textContent = row.storage; }
-        else { storageWrap.style.display = 'none'; }
-        if (incC && row.comment) { commentLine.style.display = ''; commentLine.textContent = row.comment; }
-        else { commentLine.style.display = 'none'; commentLine.textContent = ''; }
         st.textContent = `Rendering ${row.bag}/27\u2026`;
         await new Promise(r => setTimeout(r, 80));
         const canvas = await html2canvas(bagLabelEl, { scale: 4, useCORS: true, backgroundColor: "#ffffff" });
@@ -2977,7 +3064,6 @@ Germany</textarea>
     } finally {
       bagNum.value = saved.num; bagType.value = saved.type; bagPh.value = saved.ph; bagRi.value = saved.ri;
       bagRecirc.checked = saved.rec; bagMedication.checked = saved.med;
-      storageWrap.style.display = 'none'; commentLine.style.display = 'none'; commentLine.textContent = '';
       renderBagLabel();
       setTimeout(() => st.textContent = "", 4000);
     }
