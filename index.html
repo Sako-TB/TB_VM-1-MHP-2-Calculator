@@ -769,6 +769,11 @@
 
     .fs-sheet + .fs-sheet { margin-top: 32px; border-top: 1px dashed var(--gray-200); padding-top: 24px; }
 
+    #fsValGrid { display: grid; grid-template-columns: 76px 1fr 1fr; gap: 6px 10px; align-items: center; max-width: 440px; margin-bottom: 4px; }
+    #fsValGrid .fsv-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--gray-400); }
+    #fsValGrid .fsv-name { font-size: 13px; font-weight: 600; color: var(--gray-700); }
+    #fsValGrid input { padding: 8px 10px; font-size: 13px; }
+
     /* Print */
     .print-only { display: none; }
 
@@ -1143,6 +1148,9 @@
           <tbody id="rpsBody"></tbody>
         </table>
 
+        <div id="rpsRiDisplay" class="ri-display" style="display:none;"></div>
+        <div class="print-ri print-only" id="rpsRiPrint" style="display:none;"></div>
+
         <div class="print-measurements print-only">
           <h3>Measured Values</h3>
           <div class="measure-row"><label>Measured RI:</label><div class="measure-line"></div></div>
@@ -1482,7 +1490,7 @@
             <input id="bagPh" type="text" inputmode="decimal" placeholder="e.g. 7.4" />
           </div>
           <div>
-            <label for="bagRi">RI</label>
+            <label for="bagRi" id="bagRiFormLabel">RI</label>
             <input id="bagRi" type="text" inputmode="decimal" placeholder="e.g. 1.412" />
           </div>
         </div>
@@ -1529,10 +1537,8 @@
 
         <div style="margin-top:20px; padding-top:20px; border-top: 1px solid var(--gray-100);">
           <label style="margin-bottom:12px;">Full Set (all 27 bags as ZIP)</label>
-          <div style="display:flex; flex-wrap:wrap; gap:20px;">
-            <div class="checkbox-row"><input type="checkbox" id="fsPh" checked><label for="fsPh">Include pH (uses the pH field above on all labels)</label></div>
-            <div class="checkbox-row"><input type="checkbox" id="fsRi" checked><label for="fsRi">Include target RI (per bag, from the Full Set table)</label></div>
-          </div>
+          <label style="display:block; margin:2px 0 8px;">Per-concentration measured values &mdash; bags of the same concentration share them; leave empty for &ldquo;&mdash;&rdquo;. Production and expiration dates are shared by all 27 labels.</label>
+          <div id="fsValGrid"></div>
           <div class="info-note" style="margin-top:10px;">Storage temperature and comment are controlled by the checkboxes above and apply to single labels and the full set alike.</div>
           <div class="toolbar" style="border-top:none; padding-top:8px; margin-top:4px;">
             <button id="genFullSetBtn" class="btn-primary" type="button">
@@ -1584,7 +1590,7 @@
               <div><span class="lm-key">Volume</span><span class="lm-val">7 L</span></div>
               <div><span class="lm-key">pH</span><span class="lm-val" id="bagPhDisplay">&mdash;</span></div>
               <div><span class="lm-key">Production</span><span class="lm-val" id="bagProdDisplay">&mdash;</span></div>
-              <div><span class="lm-key">RI</span><span class="lm-val" id="bagRiDisplay">&mdash;</span></div>
+              <div><span class="lm-key" id="bagRiKey">RI</span><span class="lm-val" id="bagRiDisplay">&mdash;</span></div>
               <div><span class="lm-key">Expiration</span><span class="lm-val" id="bagExpDisplay">&mdash;</span></div>
               <div><span class="lm-key">Type</span><span class="lm-val" id="bagTypeDisplay">VM-1</span></div>
               <div id="bagStorageWrap" style="display:none;"><span class="lm-key">Storage</span><span class="lm-val" id="bagStorageVal">&mdash;</span></div>
@@ -2300,6 +2306,8 @@ Germany</textarea>
     rpsErr.textContent = "";
     rpsBody.innerHTML  = "";
     $("rpsPrintHeader").innerHTML = "1&times; m-RPS-2";
+    $("rpsRiDisplay").style.display = "none";
+    $("rpsRiPrint").style.display = "none";
     const L = Number(rpsVolume.value);
     if (!Number.isFinite(L) || rpsVolume.value === '') {
       rpsEmpty.style.display = "block";
@@ -2326,6 +2334,13 @@ Germany</textarea>
     const tr = document.createElement("tr");
     tr.innerHTML = `<td>Water (q.s. to ${fmt(L * 1000, 0)} mL)</td><td>~${fmt(waterMl, 1)} mL</td>`;
     rpsBody.appendChild(tr);
+
+    // Expected RI (0% VM-1 = pure 1\u00d7 carrier)
+    const rpsRi = expectedRI(0);
+    $("rpsRiDisplay").style.display = "flex";
+    $("rpsRiDisplay").textContent = `Expected RI: ${fmtRI(rpsRi)}`;
+    $("rpsRiPrint").style.display = "block";
+    $("rpsRiPrint").textContent = `Expected RI: ${fmtRI(rpsRi)}`;
 
     // Print header
     $("rpsPrintHeader").innerHTML = `1&times; m-RPS-2<span class="print-subtitle">${L} L</span><span class="print-date">${todayStr()}</span>`;
@@ -2673,7 +2688,12 @@ Germany</textarea>
 
     // pH, RI
     $("bagPhDisplay").textContent = bagPh.value || "\u2014";
-    $("bagRiDisplay").textContent = bagRi.value || "\u2014";
+    const isMhpBag = bagType.value === "mhp";
+    $("bagRiKey").textContent = isMhpBag ? "Osmolality" : "RI";
+    $("bagRiFormLabel").textContent = isMhpBag ? "Osmolality (mOsm)" : "RI";
+    let riVal = bagRi.value || "\u2014";
+    if (isMhpBag && bagRi.value && /^[0-9.,\s\-\u2013]+$/.test(bagRi.value)) riVal = bagRi.value + " mOsm";
+    $("bagRiDisplay").textContent = riVal;
 
     // Dates
     if (bagDate.value) {
@@ -2823,7 +2843,7 @@ Germany</textarea>
      FULL SET — shared data
      ══════════════════════════════════ */
   const FULL_SET = [
-    {bag:1,  key:'mhp', recirc:'',           ri:null,   storage:'4\u00b0C Fridge',   comment:'Used as washout solution'},
+    {bag:1,  key:'mhp', med:true, recirc:'',           ri:null,   storage:'4\u00b0C Fridge',   comment:'Used as washout solution'},
     {bag:2,  key:'mhp', recirc:'',           ri:null,   storage:'4\u00b0C Fridge',   comment:'Used as washout solution'},
     {bag:3,  key:'mhp', recirc:'Check Temp', ri:null,   storage:'4\u00b0C Fridge',   comment:'Recirculate until you reach correct temperature'},
     {bag:4,  key:'2.5', recirc:'',           ri:1.3425, storage:'4\u00b0C Fridge',   comment:'Begin when body temperature reaches 4\u00b0C'},
@@ -2869,6 +2889,21 @@ Germany</textarea>
   };
   ["fsStorage", "fsComments"].forEach(id => $(id).addEventListener("change", renderBagLabel));
   renderBagLabel();
+
+  (function buildFsValGrid() {
+    const g = $("fsValGrid");
+    if (!g) return;
+    let html = '<div class="fsv-head">Conc.</div><div class="fsv-head">pH</div><div class="fsv-head">RI / Osmolality</div>';
+    html += '<div class="fsv-name">MHP-2</div>'
+      + '<input type="text" inputmode="decimal" data-fs-ph="mhp" placeholder="8.0\u20138.2">'
+      + '<input type="text" inputmode="decimal" data-fs-ri="mhp" placeholder="388\u2013403 mOsm">';
+    for (const p of VM1_PERCENTAGES) {
+      html += `<div class="fsv-name">${p}%</div>`
+        + `<input type="text" inputmode="decimal" data-fs-ph="${p}" placeholder="pH">`
+        + `<input type="text" inputmode="decimal" data-fs-ri="${p}" value="${expectedRI(p).toFixed(4)}">`;
+    }
+    g.innerHTML = html;
+  })();
 
   const FULL_SET_STOCK = {'mhp':3,'2.5':2,'5':2,'7.5':1,'10':2,'15':1,'20':1,'25':1,'30':2,'40':1,'50':1,'60':1,'70':8,'75':1};
   const FS_DB_ROWS = [[2.5,14],[5,14],[7.5,7],[10,14],[15,7],[20,7],[25,7],[30,14],[40,7],[50,7],[60,7],[70,56]];
@@ -3028,7 +3063,8 @@ Germany</textarea>
   $("genFullSetBtn").addEventListener("click", async () => {
     const st = $("fsStatus");
     if (typeof JSZip === 'undefined') { st.textContent = "JSZip failed to load"; return; }
-    const incPh = $("fsPh").checked, incRi = $("fsRi").checked;
+    const fsPhVal = k => { const el = document.querySelector(`[data-fs-ph="${k}"]`); return el ? el.value.trim() : ""; };
+    const fsRiVal = k => { const el = document.querySelector(`[data-fs-ri="${k}"]`); return el ? el.value.trim() : ""; };
     const saved = {
       num: bagNum.value, type: bagType.value, ph: bagPh.value, ri: bagRi.value,
       rec: bagRecirc.checked, med: bagMedication.checked
@@ -3038,10 +3074,10 @@ Germany</textarea>
       for (const row of FULL_SET) {
         bagNum.value = row.bag;
         bagType.value = row.key;
-        bagPh.value = incPh ? saved.ph : '';
-        bagRi.value = (incRi && row.ri) ? row.ri.toFixed(4) : '';
+        bagPh.value = fsPhVal(row.key);
+        bagRi.value = fsRiVal(row.key);
         bagRecirc.checked = !!row.recirc;
-        bagMedication.checked = false;
+        bagMedication.checked = !!row.med;
         renderBagLabel();
         st.textContent = `Rendering ${row.bag}/27\u2026`;
         await new Promise(r => setTimeout(r, 80));
